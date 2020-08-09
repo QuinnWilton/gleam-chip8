@@ -40,6 +40,8 @@ defmodule Chip8.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_view, "~> 0.13.0"},
       {:floki, ">= 0.0.0", only: :test},
+      {:gleam_bitwise, "~> 1.0"},
+      {:gleam_stdlib, "~> 0.10"},
       {:mix_gleam, "~> 0.1.0"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},

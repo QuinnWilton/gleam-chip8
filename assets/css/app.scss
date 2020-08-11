@@ -2,21 +2,82 @@
 @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
 
-.grid-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 1px 1px;
-  grid-template-areas: "screen disassembler" "controls memory";
+html {
+  font-family: Arial;
+  background-color: black;
 }
 
-.screen { grid-area: screen; }
+.grid-container {
+  display: grid;
+  grid-auto-columns: min-content auto auto;
+  grid-template-rows: 1fr 1fr;
+  gap: 32px 32px;
+  grid-template-areas: "screen disassembler memory" "controls disassembler memory";
+}
 
-.disassembler { grid-area: disassembler; }
+.window {
+  border: 1px solid;
+}
 
-.memory { grid-area: memory; }
+.window > .header {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 8px
+}
 
-.controls { grid-area: controls; }
+.window > .body {
+  padding: 12px;
+}
+
+.window-screen {
+  grid-area: screen;
+  border-color: #4392F1;
+}
+
+.window-screen > .header {
+  color: black;
+  background-color: #4392F1;
+}
+
+.window-disassembler {
+  grid-area: disassembler;
+  border-color: #2e2767;
+}
+
+.window-disassembler > .header {
+  color: #6153CC;
+  background-color: #2e2767;
+}
+
+.window-memory {
+  grid-area: memory;
+  border-color: #2e2767;
+}
+
+.window-memory > .header {
+  color: #6153CC;
+  background-color: #2e2767;
+}
+
+.window-controls {
+  grid-area: controls;
+  border-color: #EE4266;
+}
+
+.window-controls > .header {
+  color: black;
+  background-color: #EE4266;
+  font-size: 16px;
+  padding: 4px;
+}
+
+.screen {
+  border-top: 1px solid white;
+  border-left: 1px solid white;
+  border-right: 1px solid #4392F1;
+  border-bottom: 1px solid #4392F1;
+}
 
 .screen-row { display: flex }
 
@@ -26,11 +87,31 @@
 }
 
 .screen-pixel-on {
-  background-color: black;
+  background-color: #EE4266;
 }
 
 .screen-pixel-off {
-  background-color: ivory;
+  background-color: black;
+}
+
+.button {
+  border-radius: 0;
+}
+
+.button.ghost {
+  font-weight: bold;
+  background-color: transparent;
+  border: 1px solid #FFFFFF;
+}
+
+.button.ghost.primary {
+  border-color: #4392F1;
+  color: #4392F1;
+}
+
+.button.ghost.secondary {
+  border-color: #EE4266;
+  color: #EE4266;
 }
 
 /* LiveView specific classes for your customizations */

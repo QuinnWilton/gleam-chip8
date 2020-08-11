@@ -1,24 +1,38 @@
 <div class="grid-container">
-  <div class="screen">
-    <%= for row <- :chip8@screen.to_list(Chip8.Emulator.emulator(@emulator, :screen)) do %>
-      <div class="screen-row">
-      <%= for pixel <- row do %>
-        <%= if pixel do %>
-          <div class="screen-pixel screen-pixel-on"></div>
-        <% else %>
-          <div class="screen-pixel screen-pixel-off"></div>
+  <div class="window window-screen">
+    <h1 class="header">Screen</h1>
+    <div class="body">
+      <div class="screen">
+        <%= for row <- :chip8@screen.to_list(Chip8.Emulator.emulator(@emulator, :screen)) do %>
+          <div class="screen-row">
+          <%= for pixel <- row do %>
+            <%= if pixel do %>
+              <div class="screen-pixel screen-pixel-on"></div>
+            <% else %>
+              <div class="screen-pixel screen-pixel-off"></div>
+            <% end %>
+          <% end %>
+          </div>
         <% end %>
-      <% end %>
       </div>
-    <% end %>
+    </div>
   </div>
-  <div class="disassembler"></div>
-  <div class="memory"></div>
-  <div class="controls">
-    <button phx-click="reset">Reset</button>
-    <button phx-click="load_rom">Load ROM</button>
-    <button phx-click="step">Step</button>
-    <button phx-click="run">Run</button>
-    <button phx-click="pause">Pause</button>
+  <%# <div class="window window-disassembler">
+      <h1 class="header">Disassembler</h1>
+      <div class="body"></div>
+  </div>
+  <div class="window window-memory">
+      <h1 class="header">Memory</h1>
+      <div class="body"></div>
+  </div> %>
+  <div class="window window-controls">
+      <h1 class="header">Controls</h1>
+      <div class="body">
+          <button class="button ghost primary" phx-click="load_rom">Load ROM</button>
+          <button class="button ghost secondary" phx-click="step">Step</button>
+          <button class="button ghost secondary" phx-click="run">Run</button>
+          <button class="button ghost secondary" phx-click="pause">Pause</button>
+          <button class="button ghost secondary" phx-click="reset">Reset</button>
+      </div>
   </div>
 </div>

@@ -1,39 +1,53 @@
 defmodule Chip8Web.PageLive do
   use Chip8Web, :live_view
 
+  require Chip8.Emulator
+
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, query: "", results: %{})}
+    {:ok, assign(socket, emulator: :chip8@emulator.init())}
   end
 
-  @impl true
-  def handle_event("suggest", %{"q" => query}, socket) do
-    {:noreply, assign(socket, results: search(query), query: query)}
+  def handle_event("reset", _value, socket) do
+    :timer.cancel(socket.assigns.timer_ref)
+
+    msg = :reset
+    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
+
+    {:noreply, assign(socket, :emulator, emulator)}
   end
 
-  @impl true
-  def handle_event("search", %{"q" => query}, socket) do
-    case search(query) do
-      %{^query => vsn} ->
-        {:noreply, redirect(socket, external: "https://hexdocs.pm/#{query}/#{vsn}")}
+  def handle_event("load_rom", _value, socket) do
+    rom = File.read!(Application.app_dir(:chip8, "priv/roms/MAZE.ch8"))
+    msg = {:load_rom, rom}
+    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
 
-      _ ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "No dependencies found matching \"#{query}\"")
-         |> assign(results: %{}, query: query)}
-    end
+    {:noreply, assign(socket, :emulator, emulator)}
   end
 
-  defp search(query) do
-    if not Chip8Web.Endpoint.config(:code_reloader) do
-      raise "action disabled when not in development"
-    end
+  def handle_event("step", _value, socket) do
+    msg = :tick
+    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
 
-    for {app, desc, vsn} <- Application.started_applications(),
-        app = to_string(app),
-        String.starts_with?(app, query) and not List.starts_with?(desc, ~c"ERTS"),
-        into: %{},
-        do: {app, vsn}
+    {:noreply, assign(socket, :emulator, emulator)}
+  end
+
+  def handle_event("run", _value, socket) do
+    {:ok, timer_ref} = :timer.send_interval(16, self(), :tick)
+
+    {:noreply, assign(socket, :timer_ref, timer_ref)}
+  end
+
+  def handle_event("pause", _value, socket) do
+    :timer.cancel(socket.assigns.timer_ref)
+
+    {:noreply, socket}
+  end
+
+  def handle_info(:tick, socket) do
+    msg = :tick
+    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
+
+    {:noreply, assign(socket, :emulator, emulator)}
   end
 end

@@ -1,14 +1,24 @@
-<section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>Peace of mind from prototype to production</p>
-
-  <form phx-change="suggest" phx-submit="search">
-    <input type="text" name="q" value="<%= @query %>" placeholder="Live dependency search" list="results" autocomplete="off"/>
-    <datalist id="results">
-      <%= for {app, _vsn} <- @results do %>
-        <option value="<%= app %>"><%= app %></option>
+<div class="grid-container">
+  <div class="screen">
+    <%= for row <- :chip8@screen.to_list(Chip8.Emulator.emulator(@emulator, :screen)) do %>
+      <div class="screen-row">
+      <%= for pixel <- row do %>
+        <%= if pixel do %>
+          <div class="screen-pixel screen-pixel-on"></div>
+        <% else %>
+          <div class="screen-pixel screen-pixel-off"></div>
+        <% end %>
       <% end %>
-    </datalist>
-    <button type="submit" phx-disable-with="Searching...">Go to Hexdocs</button>
-  </form>
-</section>
+      </div>
+    <% end %>
+  </div>
+  <div class="disassembler"></div>
+  <div class="memory"></div>
+  <div class="controls">
+    <button phx-click="reset">Reset</button>
+    <button phx-click="load_rom">Load ROM</button>
+    <button phx-click="step">Step</button>
+    <button phx-click="run">Run</button>
+    <button phx-click="pause">Pause</button>
+  </div>
+</div>

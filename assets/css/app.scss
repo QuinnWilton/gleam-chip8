@@ -2,6 +2,37 @@
 @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
 
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1px 1px;
+  grid-template-areas: "screen disassembler" "controls memory";
+}
+
+.screen { grid-area: screen; }
+
+.disassembler { grid-area: disassembler; }
+
+.memory { grid-area: memory; }
+
+.controls { grid-area: controls; }
+
+.screen-row { display: flex }
+
+.screen-pixel {
+  width: 10px;
+  height: 10px;
+}
+
+.screen-pixel-on {
+  background-color: black;
+}
+
+.screen-pixel-off {
+  background-color: ivory;
+}
+
 /* LiveView specific classes for your customizations */
 .phx-no-feedback.invalid-feedback,
 .phx-no-feedback .invalid-feedback {

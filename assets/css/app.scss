@@ -2,9 +2,18 @@
 @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
 
+@font-face {
+  font-family: Cozette;
+  src: url('/fonts/CozetteVector.ttf')
+}
+
 html {
-  font-family: Arial;
   background-color: black;
+}
+
+body {
+  font-family: Cozette;
+  -webkit-font-smoothing: none;
 }
 
 .grid-container {
@@ -96,6 +105,9 @@ html {
 
 .button {
   border-radius: 0;
+
+  font-family: Cozette;
+  -webkit-font-smoothing: none;
 }
 
 .button.ghost {

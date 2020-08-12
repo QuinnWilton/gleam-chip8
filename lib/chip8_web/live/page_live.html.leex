@@ -3,7 +3,7 @@
     <h1 class="header">Screen</h1>
     <div class="body">
       <div class="screen">
-        <%= for row <- :chip8@screen.to_list(Chip8.Emulator.emulator(@emulator, :screen)) do %>
+        <%= for row <- :chip8@screen.to_list(@emulator.screen) do %>
           <div class="screen-row">
           <%= for pixel <- row do %>
             <%= if pixel do %>

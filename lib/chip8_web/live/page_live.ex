@@ -5,31 +5,53 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, emulator: :chip8@emulator.init())}
+    emulator =
+      :chip8@emulator.init()
+      |> Chip8.Emulator.from_record()
+
+    socket = assign(socket, emulator: emulator)
+
+    {:ok, socket}
   end
 
   def handle_event("reset", _value, socket) do
     :timer.cancel(socket.assigns.timer_ref)
 
-    msg = :reset
-    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
+    emulator =
+      socket.assigns.emulator
+      |> Chip8.Emulator.to_record()
+      |> :chip8@emulator.update(:reset)
+      |> Chip8.Emulator.from_record()
 
-    {:noreply, assign(socket, :emulator, emulator)}
+    socket = assign(socket, :emulator, emulator)
+
+    {:noreply, socket}
   end
 
   def handle_event("load_rom", _value, socket) do
     rom = File.read!(Application.app_dir(:chip8, "priv/roms/MAZE.ch8"))
-    msg = {:load_rom, rom}
-    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
 
-    {:noreply, assign(socket, :emulator, emulator)}
+    emulator =
+      socket.assigns.emulator
+      |> Chip8.Emulator.to_record()
+      |> :chip8@emulator.update({:load_rom, rom})
+      |> Chip8.Emulator.from_record()
+
+    socket = assign(socket, :emulator, emulator)
+
+    {:noreply, socket}
   end
 
   def handle_event("step", _value, socket) do
-    msg = :tick
-    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
+    emulator =
+      socket.assigns.emulator
+      |> Chip8.Emulator.to_record()
+      |> :chip8@emulator.update(:tick)
+      |> Chip8.Emulator.from_record()
 
-    {:noreply, assign(socket, :emulator, emulator)}
+    socket = assign(socket, :emulator, emulator)
+
+    {:noreply, socket}
   end
 
   def handle_event("run", _value, socket) do
@@ -45,9 +67,14 @@ defmodule Chip8Web.PageLive do
   end
 
   def handle_info(:tick, socket) do
-    msg = :tick
-    emulator = :chip8@emulator.update(socket.assigns.emulator, msg)
+    emulator =
+      socket.assigns.emulator
+      |> Chip8.Emulator.to_record()
+      |> :chip8@emulator.update(:tick)
+      |> Chip8.Emulator.from_record()
 
-    {:noreply, assign(socket, :emulator, emulator)}
+    socket = assign(socket, :emulator, emulator)
+
+    {:noreply, socket}
   end
 end

@@ -103,6 +103,11 @@ body {
   background-color: black;
 }
 
+:focus {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
 .button {
   border-radius: 0;
 
@@ -124,6 +129,38 @@ body {
 .button.ghost.secondary {
   border-color: #EE4266;
   color: #EE4266;
+}
+
+.button.ghost.primary:hover, .button.ghost.primary:focus {
+  border: 1px solid #4392F1;
+  border-top-color: white;
+  border-left-color: white;
+  background-color: #4392F1;
+  color: white;
+}
+
+.button.ghost.primary:active {
+  border: 1px solid #4392F1;
+  border-bottom-color: white;
+  border-right-color: white;
+  background-color: #4392F1;
+  color: white;
+}
+
+.button.ghost.secondary:hover, .button.ghost.secondary:focus {
+  border: 1px solid #EE4266;
+  border-top-color: white;
+  border-left-color: white;
+  background-color: #EE4266;
+  color: white;
+}
+
+.button.ghost.secondary:active {
+  border: 1px solid #EE4266;
+  border-bottom-color: white;
+  border-right-color: white;
+  background-color: #EE4266;
+  color: white;
 }
 
 /* LiveView specific classes for your customizations */

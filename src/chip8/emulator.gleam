@@ -188,9 +188,7 @@ pub fn execute_instruction(
       let lsb = bitwise.and(vx_value, 1)
       let result = case lsb {
         0 -> vx_value / 2
-        1 -> vx_value
-          |> fn(x) { x - 1 }
-          |> fn(x) { x / 2 }
+        1 -> { vx_value - 1 } / 2
       }
       let updated_registers = emulator.registers
         |> registers.write(vx, result)
@@ -216,9 +214,7 @@ pub fn execute_instruction(
       let tuple(result, vf) = case msb {
         0 -> tuple(vx_value * 2, 0)
         128 -> tuple(
-          vx_value
-          |> fn(x) { x - 1 }
-          |> fn(x) { x * 2 },
+          {vx_value - 1} * 2,
           1,
         )
       }
@@ -558,8 +554,7 @@ pub fn step(emulator: Emulator) -> Emulator {
     Emulator(state: Running, ..) -> {
       let Ok(raw_instruction) = memory.read(emulator.memory, emulator.pc, 2)
       let instruction = instruction.decode_instruction(raw_instruction)
-      emulator
-      |> fn(e) { Emulator(..e, pc: e.pc + 2) }
+      Emulator(..emulator, pc: emulator.pc + 2)
       |> execute_instruction(instruction)
     }
   }

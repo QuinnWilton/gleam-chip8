@@ -7,27 +7,18 @@ defmodule Chip8.Strucord do
 
     fields = Record.extract(name, from: from)
     struct_fields = Keyword.keys(fields)
-
-    module = __CALLER__.module
+    vars = Macro.generate_arguments(length(struct_fields), __MODULE__)
+    kvs = Enum.zip(struct_fields, vars)
 
     quote do
       defstruct unquote(struct_fields)
 
-      def from_record(record) do
-        fields =
-          unquote(struct_fields)
-          |> Enum.with_index(1)
-          |> Enum.map(fn {field, index} ->
-            {field, elem(record, index)}
-          end)
-
-        struct!(unquote(module), fields)
+      def from_record({unquote(name), unquote_splicing(vars)}) do
+        %__MODULE__{unquote_splicing(kvs)}
       end
 
-      def to_record(%unquote(module){} = struct) do
-        Enum.reduce(unquote(struct_fields), {unquote(name)}, fn field, record ->
-          Tuple.append(record, Map.fetch!(struct, field))
-        end)
+      def to_record(%__MODULE__{unquote_splicing(kvs)}) do
+        {unquote(name), unquote_splicing(vars)}
       end
     end
   end

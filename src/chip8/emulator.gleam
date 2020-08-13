@@ -1,5 +1,6 @@
 import gleam/bitwise
 import chip8/externals
+import chip8/instruction
 import chip8/keyboard
 import chip8/memory
 import chip8/registers
@@ -35,44 +36,6 @@ pub type Emulator {
   )
 }
 
-pub type Instruction {
-  InstSYS(address: Int)
-  InstCLS
-  InstRET
-  InstJPAbsolute(address: Int)
-  InstJPOffset(offset: Int)
-  InstCALL(address: Int)
-  InstSEImm(vx: registers.Register, value: Int)
-  InstSEReg(vx: registers.Register, vy: registers.Register)
-  InstSNEImm(vx: registers.Register, value: Int)
-  InstSNEReg(vx: registers.Register, vy: registers.Register)
-  InstLDRegImm(vx: registers.Register, value: Int)
-  InstLDRegReg(vx: registers.Register, vy: registers.Register)
-  InstLDRegI(address: Int)
-  InstLDRegDT(vx: registers.Register)
-  InstLDRegK(vx: registers.Register)
-  InstLDDTReg(vx: registers.Register)
-  InstLDSTReg(vx: registers.Register)
-  InstLDFReg(vx: registers.Register)
-  InstLDBReg(vx: registers.Register)
-  InstLDArrReg(vx: registers.Register)
-  InstLDRegArr(vx: registers.Register)
-  InstADDRegImm(vx: registers.Register, value: Int)
-  InstADDRegReg(vx: registers.Register, vy: registers.Register)
-  InstADDIReg(vx: registers.Register)
-  InstOR(vx: registers.Register, vy: registers.Register)
-  InstAND(vx: registers.Register, vy: registers.Register)
-  InstXOR(vx: registers.Register, vy: registers.Register)
-  InstSHRReg(vx: registers.Register)
-  InstSHLReg(vx: registers.Register)
-  InstSUBRegReg(vx: registers.Register, vy: registers.Register)
-  InstSUBNRegReg(vx: registers.Register, vy: registers.Register)
-  InstRND(vx: registers.Register, value: Int)
-  InstDRW(vx: registers.Register, vy: registers.Register, length: Int)
-  InstSKP(value: Int)
-  InstSKNP(value: Int)
-}
-
 pub fn init() -> Emulator {
   Emulator(
     state: Running,
@@ -86,148 +49,43 @@ pub fn init() -> Emulator {
   )
 }
 
-pub fn decode_instruction(emulator: Emulator, address: Int) -> Instruction {
-  assert Ok(data) = memory.read(emulator.memory, address, 2)
-
-  case data {
-    <<0:4, nnn:12>> -> InstSYS(address: nnn)
-    <<0:4, 0:4, 14:4, 0:4>> -> InstCLS
-    <<0:4, 0:4, 14:4, 14:4>> -> InstRET
-    <<1:4, nnn:12>> -> InstJPAbsolute(address: nnn)
-    <<2:4, nnn:12>> -> InstCALL(address: nnn)
-    <<3:4, x:4, kk:8>> -> InstSEImm(vx: registers.to_register(x), value: kk)
-    <<4:4, x:4, kk:8>> -> InstSNEImm(vx: registers.to_register(x), value: kk)
-    <<
-      5:4,
-      x:4,
-      y:4,
-      0:4,
-    >> -> InstSEReg(vx: registers.to_register(x), vy: registers.to_register(y))
-    <<6:4, x:4, kk:8>> -> InstLDRegImm(vx: registers.to_register(x), value: kk)
-    <<7:4, x:4, kk:8>> -> InstADDRegImm(vx: registers.to_register(x), value: kk)
-    <<
-      8:4,
-      x:4,
-      y:4,
-      0:4,
-    >> -> InstLDRegReg(
-      vx: registers.to_register(x),
-      vy: registers.to_register(y),
-    )
-    <<
-      8:4,
-      x:4,
-      y:4,
-      1:4,
-    >> -> InstOR(vx: registers.to_register(x), vy: registers.to_register(y))
-    <<
-      8:4,
-      x:4,
-      y:4,
-      2:4,
-    >> -> InstAND(vx: registers.to_register(x), vy: registers.to_register(y))
-    <<
-      8:4,
-      x:4,
-      y:4,
-      3:4,
-    >> -> InstXOR(vx: registers.to_register(x), vy: registers.to_register(y))
-    <<
-      8:4,
-      x:4,
-      y:4,
-      4:4,
-    >> -> InstADDRegReg(
-      vx: registers.to_register(x),
-      vy: registers.to_register(y),
-    )
-    <<
-      8:4,
-      x:4,
-      y:4,
-      5:4,
-    >> -> InstSUBRegReg(
-      vx: registers.to_register(x),
-      vy: registers.to_register(y),
-    )
-    <<8:4, x:4, _:4, 6:4>> -> InstSHRReg(vx: registers.to_register(x))
-    <<
-      8:4,
-      x:4,
-      y:4,
-      7:4,
-    >> -> InstSUBNRegReg(
-      vx: registers.to_register(x),
-      vy: registers.to_register(y),
-    )
-    <<8:4, x:4, _:4, 14:4>> -> InstSHLReg(vx: registers.to_register(x))
-    <<
-      9:4,
-      x:4,
-      y:4,
-      0:4,
-    >> -> InstSEReg(vx: registers.to_register(x), vy: registers.to_register(y))
-    <<10:4, nnn:12>> -> InstLDRegI(address: nnn)
-    <<11:4, nnn:12>> -> InstJPOffset(offset: nnn)
-    <<12:4, x:4, nn:8>> -> InstRND(vx: registers.to_register(x), value: nn)
-    <<
-      13:4,
-      x:4,
-      y:4,
-      n:4,
-    >> -> InstDRW(
-      vx: registers.to_register(x),
-      vy: registers.to_register(y),
-      length: n,
-    )
-    <<14:4, x:4, 9:4, 14:4>> -> InstSKP(value: x)
-    <<14:4, x:4, 10:4, 1:4>> -> InstSKNP(value: x)
-    <<15:4, x:4, 0:4, 7:4>> -> InstLDRegDT(vx: registers.to_register(x))
-    <<15:4, x:4, 0:4, 10:4>> -> InstLDRegK(vx: registers.to_register(x))
-    <<15:4, x:4, 1:4, 5:4>> -> InstLDDTReg(vx: registers.to_register(x))
-    <<15:4, x:4, 1:4, 8:4>> -> InstLDSTReg(vx: registers.to_register(x))
-    <<15:4, x:4, 1:4, 14:4>> -> InstADDIReg(vx: registers.to_register(x))
-    <<15:4, x:4, 2:4, 9:4>> -> InstLDFReg(vx: registers.to_register(x))
-    <<15:4, x:4, 3:4, 3:4>> -> InstLDBReg(vx: registers.to_register(x))
-    <<15:4, x:4, 5:4, 5:4>> -> InstLDArrReg(vx: registers.to_register(x))
-    <<15:4, x:4, 6:4, 5:4>> -> InstLDRegArr(vx: registers.to_register(x))
-  }
-}
-
 pub fn execute_instruction(
   emulator: Emulator,
-  instruction: Instruction,
+  instruction: instruction.Instruction,
 ) -> Emulator {
   case instruction {
-    InstSYS(_address) -> emulator
-    InstCLS -> Emulator(..emulator, screen: screen.clear(emulator.screen))
-    InstRET -> {
+    instruction.InstSYS(_address) -> emulator
+    instruction.InstCLS -> Emulator(
+      ..emulator,
+      screen: screen.clear(emulator.screen),
+    )
+    instruction.InstRET -> {
       let tuple(stack, address) = stack.pop(emulator.stack)
       Emulator(..emulator, stack: stack, pc: address)
     }
-    InstJPAbsolute(address) -> Emulator(..emulator, pc: address)
-    InstCALL(
+    instruction.InstJPAbsolute(address) -> Emulator(..emulator, pc: address)
+    instruction.InstCALL(
       address,
     ) -> Emulator(
       ..emulator,
       pc: address,
       stack: stack.push(emulator.stack, emulator.pc),
     )
-    InstSEImm(
+    instruction.InstSEImm(
       vx: vx,
       value: value,
     ) -> case registers.read(emulator.registers, vx) == value {
       True -> Emulator(..emulator, pc: emulator.pc + 2)
       False -> emulator
     }
-    InstSNEImm(
+    instruction.InstSNEImm(
       vx: vx,
       value: value,
     ) -> case registers.read(emulator.registers, vx) == value {
       True -> emulator
       False -> Emulator(..emulator, pc: emulator.pc + 2)
     }
-    InstSEReg(
+    instruction.InstSEReg(
       vx: vx,
       vy: vy,
     ) -> case registers.read(
@@ -237,14 +95,14 @@ pub fn execute_instruction(
       True -> Emulator(..emulator, pc: emulator.pc + 2)
       False -> emulator
     }
-    InstLDRegImm(
+    instruction.InstLDRegImm(
       vx: vx,
       value: value,
     ) -> Emulator(
       ..emulator,
       registers: registers.write(emulator.registers, vx, value),
     )
-    InstADDRegImm(
+    instruction.InstADDRegImm(
       vx: vx,
       value: value,
     ) -> Emulator(
@@ -255,7 +113,7 @@ pub fn execute_instruction(
         fn(old) { old + value },
       ),
     )
-    InstLDRegReg(
+    instruction.InstLDRegReg(
       vx: vx,
       vy: vy,
     ) -> Emulator(
@@ -266,7 +124,7 @@ pub fn execute_instruction(
         registers.read(emulator.registers, vy),
       ),
     )
-    InstOR(vx: vx, vy: vy) -> {
+    instruction.InstOR(vx: vx, vy: vy) -> {
       let vy_value = registers.read(emulator.registers, vy)
       Emulator(
         ..emulator,
@@ -277,7 +135,7 @@ pub fn execute_instruction(
         ),
       )
     }
-    InstAND(vx: vx, vy: vy) -> {
+    instruction.InstAND(vx: vx, vy: vy) -> {
       let vy_value = registers.read(emulator.registers, vy)
       Emulator(
         ..emulator,
@@ -288,7 +146,7 @@ pub fn execute_instruction(
         ),
       )
     }
-    InstXOR(vx: vx, vy: vy) -> {
+    instruction.InstXOR(vx: vx, vy: vy) -> {
       let vy_value = registers.read(emulator.registers, vy)
       Emulator(
         ..emulator,
@@ -299,7 +157,7 @@ pub fn execute_instruction(
         ),
       )
     }
-    InstADDRegReg(vx: vx, vy: vy) -> {
+    instruction.InstADDRegReg(vx: vx, vy: vy) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let vy_value = registers.read(emulator.registers, vy)
       let result = vx_value + vy_value
@@ -312,7 +170,7 @@ pub fn execute_instruction(
         |> registers.write(registers.VF, carry)
       Emulator(..emulator, registers: updated_registers)
     }
-    InstSUBRegReg(vx: vx, vy: vy) -> {
+    instruction.InstSUBRegReg(vx: vx, vy: vy) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let vy_value = registers.read(emulator.registers, vy)
       let result = vx_value - vy_value
@@ -325,7 +183,7 @@ pub fn execute_instruction(
         |> registers.write(registers.VF, not_borrow)
       Emulator(..emulator, registers: updated_registers)
     }
-    InstSHRReg(vx: vx) -> {
+    instruction.InstSHRReg(vx: vx) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let lsb = bitwise.and(vx_value, 1)
       let result = case lsb {
@@ -339,7 +197,7 @@ pub fn execute_instruction(
         |> registers.write(registers.VF, lsb)
       Emulator(..emulator, registers: updated_registers)
     }
-    InstSUBNRegReg(vx: vx, vy: vy) -> {
+    instruction.InstSUBNRegReg(vx: vx, vy: vy) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let vy_value = registers.read(emulator.registers, vy)
       let result = vy_value - vx_value
@@ -352,7 +210,7 @@ pub fn execute_instruction(
         |> registers.write(registers.VF, not_borrow)
       Emulator(..emulator, registers: updated_registers)
     }
-    InstSHLReg(vx: vx) -> {
+    instruction.InstSHLReg(vx: vx) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let msb = bitwise.and(vx_value, 128)
       let tuple(result, vf) = case msb {
@@ -369,7 +227,7 @@ pub fn execute_instruction(
         |> registers.write(registers.VF, vf)
       Emulator(..emulator, registers: updated_registers)
     }
-    InstSNEReg(vx: vx, vy: vy) -> {
+    instruction.InstSNEReg(vx: vx, vy: vy) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let vy_value = registers.read(emulator.registers, vy)
       case vx_value == vy_value {
@@ -377,19 +235,19 @@ pub fn execute_instruction(
         False -> Emulator(..emulator, pc: emulator.pc + 2)
       }
     }
-    InstLDRegI(
+    instruction.InstLDRegI(
       address,
     ) -> Emulator(
       ..emulator,
       registers: registers.write(emulator.registers, registers.I, address),
     )
-    InstJPOffset(
+    instruction.InstJPOffset(
       offset,
     ) -> Emulator(
       ..emulator,
       pc: offset + registers.read(emulator.registers, registers.V0),
     )
-    InstRND(vx: vx, value: value) -> {
+    instruction.InstRND(vx: vx, value: value) -> {
       let rand = externals.rand_uniform(256) - 1
       let result = bitwise.and(rand, value)
       Emulator(
@@ -397,7 +255,7 @@ pub fn execute_instruction(
         registers: registers.write(emulator.registers, vx, result),
       )
     }
-    InstDRW(vx: vx, vy: vy, length: length) -> {
+    instruction.InstDRW(vx: vx, vy: vy, length: length) -> {
       let x = registers.read(emulator.registers, vx)
       let y = registers.read(emulator.registers, vy)
       let offset = registers.read(emulator.registers, registers.I)
@@ -413,21 +271,21 @@ pub fn execute_instruction(
       }
       Emulator(..emulator, screen: screen, registers: registers)
     }
-    InstSKP(value: value) -> {
+    instruction.InstSKP(value: value) -> {
       let key = keyboard.to_key_code(value)
       case keyboard.get_key_state(emulator.keyboard, key) {
         keyboard.KeyUp -> emulator
         keyboard.KeyDown -> Emulator(..emulator, pc: emulator.pc + 2)
       }
     }
-    InstSKNP(value: value) -> {
+    instruction.InstSKNP(value: value) -> {
       let key = keyboard.to_key_code(value)
       case keyboard.get_key_state(emulator.keyboard, key) {
         keyboard.KeyUp -> Emulator(..emulator, pc: emulator.pc + 2)
         keyboard.KeyDown -> emulator
       }
     }
-    InstLDRegDT(
+    instruction.InstLDRegDT(
       vx: vx,
     ) -> Emulator(
       ..emulator,
@@ -437,8 +295,10 @@ pub fn execute_instruction(
         registers.read(emulator.registers, registers.DT),
       ),
     )
-    InstLDRegK(vx: vx) -> Emulator(..emulator, state: AwaitingInput(vx: vx))
-    InstLDDTReg(
+    instruction.InstLDRegK(
+      vx: vx,
+    ) -> Emulator(..emulator, state: AwaitingInput(vx: vx))
+    instruction.InstLDDTReg(
       vx: vx,
     ) -> Emulator(
       ..emulator,
@@ -448,7 +308,7 @@ pub fn execute_instruction(
         registers.read(emulator.registers, vx),
       ),
     )
-    InstLDSTReg(
+    instruction.InstLDSTReg(
       vx: vx,
     ) -> Emulator(
       ..emulator,
@@ -458,7 +318,7 @@ pub fn execute_instruction(
         registers.read(emulator.registers, vx),
       ),
     )
-    InstADDIReg(
+    instruction.InstADDIReg(
       vx: vx,
     ) -> Emulator(
       ..emulator,
@@ -468,7 +328,7 @@ pub fn execute_instruction(
         fn(old) { old + registers.read(emulator.registers, vx) },
       ),
     )
-    InstLDFReg(vx: vx) -> {
+    instruction.InstLDFReg(vx: vx) -> {
       let character = registers.read(emulator.registers, vx)
       let offset = character * 5
       Emulator(
@@ -476,7 +336,7 @@ pub fn execute_instruction(
         registers: registers.write(emulator.registers, registers.I, offset),
       )
     }
-    InstLDBReg(vx: vx) -> {
+    instruction.InstLDBReg(vx: vx) -> {
       let x = registers.read(emulator.registers, vx)
       let x0 = x / 100
       let x1 = x % 100 / 10
@@ -488,7 +348,7 @@ pub fn execute_instruction(
         |> memory.put(offset + 2, <<x2>>)
       Emulator(..emulator, memory: m)
     }
-    InstLDArrReg(vx: vx) -> {
+    instruction.InstLDArrReg(vx: vx) -> {
       let offset = registers.read(emulator.registers, registers.I)
       let m = emulator.memory
         |> memory.put(
@@ -557,7 +417,7 @@ pub fn execute_instruction(
         )
       Emulator(..emulator, memory: m)
     }
-    InstLDRegArr(vx: vx) -> {
+    instruction.InstLDRegArr(vx: vx) -> {
       assert Ok(
         <<m0>>,
       ) = memory.read(
@@ -696,7 +556,8 @@ pub fn step(emulator: Emulator) -> Emulator {
   case emulator {
     Emulator(state: AwaitingInput(_), ..) -> emulator
     Emulator(state: Running, ..) -> {
-      let instruction = decode_instruction(emulator, emulator.pc)
+      let Ok(raw_instruction) = memory.read(emulator.memory, emulator.pc, 2)
+      let instruction = instruction.decode_instruction(raw_instruction)
       emulator
       |> fn(e) { Emulator(..e, pc: e.pc + 2) }
       |> execute_instruction(instruction)

@@ -29,6 +29,22 @@ pub type Keyboard =
 
 pub fn new() -> Keyboard {
   map.new()
+  |> map.insert(K0, KeyUp)
+  |> map.insert(K1, KeyUp)
+  |> map.insert(K2, KeyUp)
+  |> map.insert(K3, KeyUp)
+  |> map.insert(K4, KeyUp)
+  |> map.insert(K5, KeyUp)
+  |> map.insert(K6, KeyUp)
+  |> map.insert(K7, KeyUp)
+  |> map.insert(K8, KeyUp)
+  |> map.insert(K9, KeyUp)
+  |> map.insert(KA, KeyUp)
+  |> map.insert(KB, KeyUp)
+  |> map.insert(KC, KeyUp)
+  |> map.insert(KD, KeyUp)
+  |> map.insert(KE, KeyUp)
+  |> map.insert(KF, KeyUp)
 }
 
 pub fn get_key_state(keyboard: Keyboard, key: KeyCode) -> KeyState {

@@ -32,6 +32,25 @@ pub type RegisterFile =
 
 pub fn new() -> RegisterFile {
   map.new()
+  |> map.insert(V0, 0)
+  |> map.insert(V1, 0)
+  |> map.insert(V2, 0)
+  |> map.insert(V3, 0)
+  |> map.insert(V4, 0)
+  |> map.insert(V5, 0)
+  |> map.insert(V6, 0)
+  |> map.insert(V7, 0)
+  |> map.insert(V8, 0)
+  |> map.insert(V9, 0)
+  |> map.insert(VA, 0)
+  |> map.insert(VB, 0)
+  |> map.insert(VC, 0)
+  |> map.insert(VD, 0)
+  |> map.insert(VE, 0)
+  |> map.insert(VF, 0)
+  |> map.insert(I, 0)
+  |> map.insert(DT, 0)
+  |> map.insert(ST, 0)
 }
 
 fn register_size(register: Register) -> RegisterSize {

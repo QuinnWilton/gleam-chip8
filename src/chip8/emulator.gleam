@@ -43,8 +43,7 @@ pub fn init() -> Emulator {
     keyboard: keyboard.new(),
     pc: 512,
     stack: stack.new(),
-    memory: memory.new(4096)
-    |> memory.put(0, font),
+    memory: memory.put(memory.new(4096), 0, font),
     screen: screen.new(64, 32),
   )
 }

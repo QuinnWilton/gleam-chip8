@@ -1,10 +1,18 @@
 defmodule Chip8Web.PageLive do
   use Chip8Web, :live_view
 
+  @fps 60
+
   @impl true
   def mount(_params, _session, socket) do
     emulator = Chip8.Emulator.init()
-    socket = assign(socket, emulator: emulator, timer_ref: nil)
+
+    socket =
+      assign(socket,
+        emulator: emulator,
+        fps: @fps,
+        timer_ref: nil
+      )
 
     {:ok, socket}
   end
@@ -14,7 +22,7 @@ defmodule Chip8Web.PageLive do
     :timer.cancel(socket.assigns.timer_ref)
 
     emulator = Chip8.Emulator.reset(socket.assigns.emulator)
-    socket = assign(socket, :emulator, emulator)
+    socket = assign(socket, emulator: emulator, timer_ref: nil)
 
     {:noreply, socket}
   end
@@ -38,7 +46,7 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("run", _value, socket) do
-    {:ok, timer_ref} = :timer.send_interval(16, self(), :tick)
+    timer_ref = schedule_next_frame(socket)
     socket = assign(socket, :timer_ref, timer_ref)
 
     {:noreply, socket}
@@ -53,11 +61,16 @@ defmodule Chip8Web.PageLive do
   end
 
   @impl true
-  def handle_info(:tick, socket) do
+  def handle_info(:next_frame, socket) do
+    timer_ref = schedule_next_frame(socket)
     emulator = Chip8.Emulator.step(socket.assigns.emulator)
-    socket = assign(socket, :emulator, emulator)
+    socket = assign(socket, emulator: emulator, timer_ref: timer_ref)
 
     {:noreply, socket}
+  end
+
+  defp schedule_next_frame(socket) do
+    Process.send_after(self(), :next_frame, trunc(1000 / socket.assigns.fps))
   end
 
   defp controls(%Chip8.Emulator{state: state}, timer_ref) do
@@ -66,12 +79,14 @@ defmodule Chip8Web.PageLive do
         [
           {"Load ROM", "load_rom", "button ghost primary"}
         ]
+
       {state, nil} when state in [:running, :awaiting_input] ->
         [
           {"Run", "run", "button ghost primary"},
           {"Step", "step", "button ghost secondary"},
           {"Reset", "reset", "button ghost secondary"}
         ]
+
       {state, ref} when not is_nil(ref) and state in [:running, :awaiting_input] ->
         [
           {"Pause", "pause", "button ghost primary"},

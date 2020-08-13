@@ -8,7 +8,7 @@ defmodule Chip8.Application do
   def start(_type, _args) do
     children = [
       # Start the Ecto repository
-      Chip8.Repo,
+      # Chip8.Repo,
       # Start the Telemetry supervisor
       Chip8Web.Telemetry,
       # Start the PubSub system

@@ -35,14 +35,6 @@ pub type Emulator {
   )
 }
 
-pub type Msg {
-  Tick
-  KeyDown(key: keyboard.KeyCode)
-  KeyUp(key: keyboard.KeyCode)
-  Reset
-  LoadROM(rom: ROM)
-}
-
 pub type Instruction {
   InstSYS(address: Int)
   InstCLS
@@ -700,7 +692,7 @@ pub fn execute_instruction(
   }
 }
 
-fn handle_tick(emulator: Emulator) -> Emulator {
+pub fn step(emulator: Emulator) -> Emulator {
   case emulator {
     Emulator(state: AwaitingInput(_), ..) -> emulator
     Emulator(state: Running, ..) -> {
@@ -712,41 +704,35 @@ fn handle_tick(emulator: Emulator) -> Emulator {
   }
 }
 
-pub fn update(emulator: Emulator, msg: Msg) -> Emulator {
-  case msg {
-    Tick -> handle_tick(emulator)
-    KeyDown(key) -> {
-      let emulator = Emulator(
-        ..emulator,
-        keyboard: keyboard.handle_key_down(emulator.keyboard, key),
-      )
-      case emulator.state {
-        Running -> emulator
-        AwaitingInput(
-          vx,
-        ) -> Emulator(
-          ..emulator,
-          state: Running,
-          registers: registers.write(
-            emulator.registers,
-            vx,
-            keyboard.key_code_to_int(key),
-          ),
-        )
-      }
-    }
-    KeyUp(
-      key,
+pub fn handle_key_down(emulator: Emulator, key: keyboard.KeyCode) -> Emulator {
+  let emulator = Emulator(
+    ..emulator,
+    keyboard: keyboard.handle_key_down(emulator.keyboard, key),
+  )
+  case emulator.state {
+    Running -> emulator
+    AwaitingInput(
+      vx,
     ) -> Emulator(
       ..emulator,
-      keyboard: keyboard.handle_key_up(emulator.keyboard, key),
-    )
-    Reset -> init()
-    LoadROM(
-      rom,
-    ) -> Emulator(
-      ..emulator,
-      memory: memory.put(emulator.memory, emulator.pc, rom),
+      state: Running,
+      registers: registers.write(
+        emulator.registers,
+        vx,
+        keyboard.key_code_to_int(key),
+      ),
     )
   }
+}
+
+pub fn handle_key_up(emulator: Emulator, key: keyboard.KeyCode) -> Emulator {
+  Emulator(..emulator, keyboard: keyboard.handle_key_up(emulator.keyboard, key))
+}
+
+pub fn reset(emulator: Emulator) -> Emulator {
+  init()
+}
+
+pub fn load_rom(emulator: Emulator, rom: ROM) -> Emulator {
+  Emulator(..emulator, memory: memory.put(emulator.memory, emulator.pc, rom))
 }

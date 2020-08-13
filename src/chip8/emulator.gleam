@@ -18,6 +18,7 @@ const font = <<
 
 pub type State {
   Running
+  AwaitingROM
   AwaitingInput(vx: registers.Register)
 }
 
@@ -38,7 +39,7 @@ pub type Emulator {
 
 pub fn init() -> Emulator {
   Emulator(
-    state: Running,
+    state: AwaitingROM,
     registers: registers.new(),
     keyboard: keyboard.new(),
     pc: 512,
@@ -53,7 +54,8 @@ pub fn reset(emulator: Emulator) -> Emulator {
 }
 
 pub fn load_rom(emulator: Emulator, rom: ROM) -> Emulator {
-  Emulator(..emulator, memory: memory.put(emulator.memory, emulator.pc, rom))
+  assert Emulator(state: AwaitingROM, ..) = emulator
+  Emulator(..emulator, state: Running, memory: memory.put(emulator.memory, emulator.pc, rom))
 }
 
 pub fn handle_key_down(emulator: Emulator, key: keyboard.KeyCode) -> Emulator {
@@ -63,6 +65,7 @@ pub fn handle_key_down(emulator: Emulator, key: keyboard.KeyCode) -> Emulator {
   )
   case emulator.state {
     Running -> emulator
+    AwaitingROM -> emulator
     AwaitingInput(
       vx,
     ) -> Emulator(
@@ -578,9 +581,10 @@ pub fn execute_instruction(
 }
 
 pub fn step(emulator: Emulator) -> Emulator {
-  case emulator {
-    Emulator(state: AwaitingInput(_), ..) -> emulator
-    Emulator(state: Running, ..) -> {
+  case emulator.state {
+    AwaitingROM -> emulator
+    AwaitingInput(_) -> emulator
+    Running -> {
       let Ok(raw_instruction) = memory.read(emulator.memory, emulator.pc, 2)
       let instruction = instruction.decode_instruction(raw_instruction)
       Emulator(..emulator, pc: emulator.pc + 2)

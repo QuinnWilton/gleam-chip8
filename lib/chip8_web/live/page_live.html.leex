@@ -28,11 +28,9 @@
   <div class="window window-controls">
       <h1 class="header">Controls</h1>
       <div class="body">
-          <button class="button ghost primary" phx-click="load_rom">Load ROM</button>
-          <button class="button ghost secondary" phx-click="step">Step</button>
-          <button class="button ghost secondary" phx-click="run">Run</button>
-          <button class="button ghost secondary" phx-click="pause">Pause</button>
-          <button class="button ghost secondary" phx-click="reset">Reset</button>
+        <%= for {text, action, class} <- controls(@emulator, @timer_ref) do %>
+          <button class="<%= class %>" phx-click="<%= action %>"><%= text %></button>
+        <% end %>
       </div>
   </div>
 </div>

@@ -11,37 +11,32 @@ defmodule Chip8.Emulator do
   end
 
   def reset(%Emulator{} = emulator) do
-    emulator
-    |> to_record()
-    |> :chip8@emulator.reset()
-    |> from_record()
+    with_record(emulator, fn record ->
+      :chip8@emulator.reset(record)
+    end)
   end
 
   def load_rom(%Emulator{} = emulator, rom) when is_binary(rom) do
-    emulator
-    |> to_record()
-    |> :chip8@emulator.load_rom(rom)
-    |> from_record()
+    with_record(emulator, fn record ->
+      :chip8@emulator.load_rom(record, rom)
+    end)
   end
 
   def step(%Emulator{} = emulator) do
-    emulator
-    |> to_record()
-    |> :chip8@emulator.step()
-    |> from_record()
+    with_record(emulator, fn record ->
+      :chip8@emulator.step(record)
+    end)
   end
 
   def handle_key_down(%Emulator{} = emulator, key) when is_atom(key) do
-    emulator
-    |> to_record()
-    |> :chip8@emulator.handle_key_down(key)
-    |> from_record()
+    with_record(emulator, fn record ->
+      :chip8@emulator.handle_key_down(record, key)
+    end)
   end
 
   def handle_key_up(%Emulator{} = emulator, key) when is_atom(key) do
-    emulator
-    |> to_record()
-    |> :chip8@emulator.handle_key_up(key)
-    |> from_record()
+    with_record(emulator, fn record ->
+      :chip8@emulator.handle_key_up(record, key)
+    end)
   end
 end

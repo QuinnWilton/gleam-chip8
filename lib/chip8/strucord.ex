@@ -20,6 +20,13 @@ defmodule Chip8.Strucord do
       def to_record(%__MODULE__{unquote_splicing(kvs)}) do
         {unquote(name), unquote_splicing(vars)}
       end
+
+      def with_record(%__MODULE__{} = struct, f) when is_function(f, 1) do
+        struct
+        |> to_record()
+        |> f.()
+        |> from_record()
+      end
     end
   end
 end

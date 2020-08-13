@@ -1,1 +1,5 @@
 gleam ref:main
+rust 1.45.2
+erlang 23.0.1
+elixir 1.10.4-otp-23
+nodejs 14.8.0

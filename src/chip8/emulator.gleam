@@ -1,5 +1,6 @@
 import gleam/bitwise
 import gleam/int
+import gleam/list
 import chip8/externals
 import chip8/instruction
 import chip8/keyboard
@@ -50,7 +51,7 @@ pub fn init() -> Emulator {
   )
 }
 
-pub fn reset(emulator: Emulator) -> Emulator {
+pub fn reset(_emulator: Emulator) -> Emulator {
   init()
 }
 
@@ -382,205 +383,64 @@ pub fn execute_instruction(
       Emulator(..emulator, memory: m)
     }
     instruction.InstLDArrReg(vx: vx) -> {
-      let offset = registers.read(emulator.registers, registers.I)
-      let m = emulator.memory
-        |> memory.put(
-          offset,
-          <<registers.read(emulator.registers, registers.V0)>>,
-        )
-        |> memory.put(
-          offset + 1,
-          <<registers.read(emulator.registers, registers.V1)>>,
-        )
-        |> memory.put(
-          offset + 2,
-          <<registers.read(emulator.registers, registers.V2)>>,
-        )
-        |> memory.put(
-          offset + 3,
-          <<registers.read(emulator.registers, registers.V3)>>,
-        )
-        |> memory.put(
-          offset + 4,
-          <<registers.read(emulator.registers, registers.V4)>>,
-        )
-        |> memory.put(
-          offset + 5,
-          <<registers.read(emulator.registers, registers.V5)>>,
-        )
-        |> memory.put(
-          offset + 6,
-          <<registers.read(emulator.registers, registers.V6)>>,
-        )
-        |> memory.put(
-          offset + 7,
-          <<registers.read(emulator.registers, registers.V7)>>,
-        )
-        |> memory.put(
-          offset + 8,
-          <<registers.read(emulator.registers, registers.V8)>>,
-        )
-        |> memory.put(
-          offset + 9,
-          <<registers.read(emulator.registers, registers.V9)>>,
-        )
-        |> memory.put(
-          offset + 10,
-          <<registers.read(emulator.registers, registers.VA)>>,
-        )
-        |> memory.put(
-          offset + 11,
-          <<registers.read(emulator.registers, registers.VB)>>,
-        )
-        |> memory.put(
-          offset + 12,
-          <<registers.read(emulator.registers, registers.VC)>>,
-        )
-        |> memory.put(
-          offset + 13,
-          <<registers.read(emulator.registers, registers.VD)>>,
-        )
-        |> memory.put(
-          offset + 14,
-          <<registers.read(emulator.registers, registers.VE)>>,
-        )
-        |> memory.put(
-          offset + 15,
-          <<registers.read(emulator.registers, registers.VF)>>,
-        )
-      Emulator(..emulator, memory: m)
+      let address = registers.read(emulator.registers, registers.I)
+      let tuple(
+        emulator,
+        _,
+        _,
+      ) = list.fold(
+        registers.list_v(),
+        tuple(emulator, 0, False),
+        fn(register, acc: tuple(Emulator, Int, Bool)) {
+          let tuple(emulator, offset, done) = acc
+          case done {
+            True -> acc
+            False -> {
+              let value = registers.read(emulator.registers, register)
+              let memory = memory.put(
+                emulator.memory,
+                address + offset,
+                <<value>>,
+              )
+              let emulator = Emulator(..emulator, memory: memory)
+              let done = register == vx
+              tuple(emulator, offset + 1, done)
+            }
+          }
+        },
+      )
+      emulator
     }
     instruction.InstLDRegArr(vx: vx) -> {
-      assert Ok(
-        <<m0>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 0,
-        1,
+      let address = registers.read(emulator.registers, registers.I)
+      let tuple(
+        emulator,
+        _,
+        _,
+      ) = list.fold(
+        registers.list_v(),
+        tuple(emulator, 0, False),
+        fn(register, acc: tuple(Emulator, Int, Bool)) {
+          let tuple(emulator, offset, done) = acc
+          case done {
+            True -> acc
+            False -> {
+              assert Ok(
+                <<value>>,
+              ) = memory.read(emulator.memory, address + offset, 1)
+              let registers = registers.write(
+                emulator.registers,
+                register,
+                value,
+              )
+              let emulator = Emulator(..emulator, registers: registers)
+              let done = register == vx
+              tuple(emulator, offset + 1, done)
+            }
+          }
+        },
       )
-      assert Ok(
-        <<m1>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 1,
-        1,
-      )
-      assert Ok(
-        <<m2>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 2,
-        1,
-      )
-      assert Ok(
-        <<m3>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 3,
-        1,
-      )
-      assert Ok(
-        <<m4>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 4,
-        1,
-      )
-      assert Ok(
-        <<m5>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 5,
-        1,
-      )
-      assert Ok(
-        <<m6>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 6,
-        1,
-      )
-      assert Ok(
-        <<m7>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 7,
-        1,
-      )
-      assert Ok(
-        <<m8>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 8,
-        1,
-      )
-      assert Ok(
-        <<m9>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 9,
-        1,
-      )
-      assert Ok(
-        <<ma>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 10,
-        1,
-      )
-      assert Ok(
-        <<mb>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 11,
-        1,
-      )
-      assert Ok(
-        <<mc>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 12,
-        1,
-      )
-      assert Ok(
-        <<md>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 13,
-        1,
-      )
-      assert Ok(
-        <<me>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 14,
-        1,
-      )
-      assert Ok(
-        <<mf>>,
-      ) = memory.read(
-        emulator.memory,
-        registers.read(emulator.registers, registers.I) + 15,
-        1,
-      )
-      let r = emulator.registers
-        |> registers.write(registers.V0, m0)
-        |> registers.write(registers.V1, m1)
-        |> registers.write(registers.V2, m2)
-        |> registers.write(registers.V3, m3)
-        |> registers.write(registers.V4, m4)
-        |> registers.write(registers.V5, m5)
-        |> registers.write(registers.V6, m6)
-        |> registers.write(registers.V7, m7)
-        |> registers.write(registers.V8, m8)
-        |> registers.write(registers.V9, m9)
-        |> registers.write(registers.VA, ma)
-        |> registers.write(registers.VB, mb)
-        |> registers.write(registers.VC, mc)
-        |> registers.write(registers.VD, md)
-        |> registers.write(registers.VE, me)
-        |> registers.write(registers.VF, mf)
-      Emulator(..emulator, registers: r)
+      emulator
     }
   }
 }
@@ -594,11 +454,11 @@ pub fn step(emulator: Emulator) -> Emulator {
       let instruction = instruction.decode_instruction(raw_instruction)
       Emulator(..emulator, pc: emulator.pc + 2)
       |> execute_instruction(instruction)
-      |> fn(emulator) {
-        let registers = emulator.registers
+      |> fn(e: Emulator) {
+        let registers = e.registers
           |> registers.update(registers.ST, fn(old) { int.max(0, old - 1) })
           |> registers.update(registers.DT, fn(old) { int.max(0, old - 1) })
-        Emulator(..emulator, registers: registers)
+        Emulator(..e, registers: registers)
       }
     }
   }

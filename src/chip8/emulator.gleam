@@ -1,4 +1,5 @@
 import gleam/bitwise
+import gleam/int
 import chip8/externals
 import chip8/instruction
 import chip8/keyboard
@@ -55,7 +56,11 @@ pub fn reset(emulator: Emulator) -> Emulator {
 
 pub fn load_rom(emulator: Emulator, rom: ROM) -> Emulator {
   assert Emulator(state: AwaitingROM, ..) = emulator
-  Emulator(..emulator, state: Running, memory: memory.put(emulator.memory, emulator.pc, rom))
+  Emulator(
+    ..emulator,
+    state: Running,
+    memory: memory.put(emulator.memory, emulator.pc, rom),
+  )
 }
 
 pub fn handle_key_down(emulator: Emulator, key: keyboard.KeyCode) -> Emulator {
@@ -589,6 +594,12 @@ pub fn step(emulator: Emulator) -> Emulator {
       let instruction = instruction.decode_instruction(raw_instruction)
       Emulator(..emulator, pc: emulator.pc + 2)
       |> execute_instruction(instruction)
+      |> fn(emulator) {
+        let registers = emulator.registers
+          |> registers.update(registers.ST, fn(old) { int.max(0, old - 1) })
+          |> registers.update(registers.DT, fn(old) { int.max(0, old - 1) })
+        Emulator(..emulator, registers: registers)
+      }
     }
   }
 }

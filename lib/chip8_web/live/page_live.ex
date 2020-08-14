@@ -10,8 +10,9 @@ defmodule Chip8Web.PageLive do
     socket =
       assign(socket,
         emulator: emulator,
+        roms: Chip8.ROMs.list_roms(),
         fps: @fps,
-        timer_ref: nil
+        running: false
       )
 
     {:ok, socket}
@@ -19,17 +20,18 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("reset", _value, socket) do
-    :timer.cancel(socket.assigns.timer_ref)
-
     emulator = Chip8.Emulator.reset(socket.assigns.emulator)
-    socket = assign(socket, emulator: emulator, timer_ref: nil)
+    socket =
+      socket
+      |> assign(:emulator, emulator)
+      |> assign(:running, false)
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("load_rom", _value, socket) do
-    rom = File.read!(Application.app_dir(:chip8, "priv/roms/MAZE.ch8"))
+  def handle_event("load_rom", %{"name" => rom_name}, socket) do
+    {^rom_name, rom} = List.keyfind(socket.assigns.roms, rom_name, 0)
     emulator = Chip8.Emulator.load_rom(socket.assigns.emulator, rom)
     socket = assign(socket, :emulator, emulator)
 
@@ -46,48 +48,49 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("run", _value, socket) do
-    timer_ref = schedule_next_frame(socket)
-    socket = assign(socket, :timer_ref, timer_ref)
+    socket = assign(socket, :running, true)
+
+    schedule_next_frame(socket)
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("pause", _value, socket) do
-    :timer.cancel(socket.assigns.timer_ref)
-    socket = assign(socket, :timer_ref, nil)
+    socket = assign(socket, :running, false)
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_info(:next_frame, socket) do
-    timer_ref = schedule_next_frame(socket)
+    schedule_next_frame(socket)
+
     emulator = Chip8.Emulator.step(socket.assigns.emulator)
-    socket = assign(socket, emulator: emulator, timer_ref: timer_ref)
+    socket = assign(socket, :emulator, emulator)
 
     {:noreply, socket}
   end
 
   defp schedule_next_frame(socket) do
-    Process.send_after(self(), :next_frame, trunc(1000 / socket.assigns.fps))
+    if socket.assigns.running do
+      Process.send_after(self(), :next_frame, trunc(1000 / socket.assigns.fps))
+    end
   end
 
-  defp controls(%Chip8.Emulator{state: state}, timer_ref) do
-    case {state, timer_ref} do
+  defp controls(%Chip8.Emulator{state: state}, running) do
+    case {state, running} do
       {:awaiting_rom, _} ->
-        [
-          {"Load ROM", "load_rom", "button ghost primary"}
-        ]
+        []
 
-      {state, nil} when state in [:running, :awaiting_input] ->
+      {state, false} when state in [:running, :awaiting_input] ->
         [
           {"Run", "run", "button ghost primary"},
           {"Step", "step", "button ghost secondary"},
           {"Reset", "reset", "button ghost secondary"}
         ]
 
-      {state, ref} when not is_nil(ref) and state in [:running, :awaiting_input] ->
+      {state, true} when state in [:running, :awaiting_input] ->
         [
           {"Pause", "pause", "button ghost primary"},
           {"Reset", "reset", "button ghost secondary"}

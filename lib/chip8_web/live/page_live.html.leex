@@ -26,11 +26,19 @@
       <div class="body"></div>
   </div> %>
   <div class="window window-controls">
-      <h1 class="header">Controls</h1>
-      <div class="body">
-        <%= for {text, action, class} <- controls(@emulator, @timer_ref) do %>
-          <button class="<%= class %>" phx-click="<%= action %>"><%= text %></button>
+    <h1 class="header">Controls</h1>
+    <div class="body">
+      <%= for {text, action, class} <- controls(@emulator, @running) do %>
+        <button class="<%= class %>" phx-click="<%= action %>"><%= text %></button>
+      <% end %>
+
+      <%= if @emulator.state == :awaiting_rom do %>
+        <%= for {rom_name, _} <- @roms do %>
+          <button phx-click="load_rom" phx-value-name="<%= rom_name %>" class="button ghost primary">
+            <%= rom_name %>
+          </button>
         <% end %>
-      </div>
+      <% end %>
+    </div>
   </div>
 </div>

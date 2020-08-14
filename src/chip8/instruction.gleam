@@ -28,8 +28,8 @@ pub type Instruction {
   InstOR(vx: registers.Register, vy: registers.Register)
   InstAND(vx: registers.Register, vy: registers.Register)
   InstXOR(vx: registers.Register, vy: registers.Register)
-  InstSHRReg(vx: registers.Register)
-  InstSHLReg(vx: registers.Register)
+  InstSHRReg(vx: registers.Register, vy: registers.Register)
+  InstSHLReg(vx: registers.Register, vy: registers.Register)
   InstSUBRegReg(vx: registers.Register, vy: registers.Register)
   InstSUBNRegReg(vx: registers.Register, vy: registers.Register)
   InstRND(vx: registers.Register, value: Int)
@@ -100,7 +100,7 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       vx: registers.to_register(x),
       vy: registers.to_register(y),
     )
-    <<8:4, x:4, _:4, 6:4>> -> InstSHRReg(vx: registers.to_register(x))
+    <<8:4, x:4, y:4, 6:4>> -> InstSHRReg(vx: registers.to_register(x), vy: registers.to_register(y))
     <<
       8:4,
       x:4,
@@ -110,7 +110,7 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       vx: registers.to_register(x),
       vy: registers.to_register(y),
     )
-    <<8:4, x:4, _:4, 14:4>> -> InstSHLReg(vx: registers.to_register(x))
+    <<8:4, x:4, y:4, 14:4>> -> InstSHLReg(vx: registers.to_register(x), vy: registers.to_register(y))
     <<
       9:4,
       x:4,

@@ -227,12 +227,8 @@ pub fn execute_instruction(
     instruction.InstSHRReg(vx: vx) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let lsb = bitwise.and(vx_value, 1)
-      let result = case lsb {
-        0 -> vx_value / 2
-        1 -> { vx_value - 1 } / 2
-      }
       let updated_registers = emulator.registers
-        |> registers.write(vx, result)
+        |> registers.write(vx, vx_value / 2)
         |> registers.write(registers.VF, lsb)
       Emulator(..emulator, registers: updated_registers)
     }
@@ -252,12 +248,12 @@ pub fn execute_instruction(
     instruction.InstSHLReg(vx: vx) -> {
       let vx_value = registers.read(emulator.registers, vx)
       let msb = bitwise.and(vx_value, 128)
-      let tuple(result, vf) = case msb {
-        0 -> tuple(vx_value * 2, 0)
-        128 -> tuple({ vx_value - 1 } * 2, 1)
+      let vf = case msb {
+        0 -> 0
+        128 -> 1
       }
       let updated_registers = emulator.registers
-        |> registers.write(vx, result)
+        |> registers.write(vx, vx_value * 2)
         |> registers.write(registers.VF, vf)
       Emulator(..emulator, registers: updated_registers)
     }

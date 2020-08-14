@@ -117,12 +117,12 @@ defmodule Chip8Web.PageLive do
       "a" -> {:ok, :k7}
       "s" -> {:ok, :k8}
       "d" -> {:ok, :k9}
-      "z" -> {:ok, :kA}
-      "c" -> {:ok, :kB}
-      "4" -> {:ok, :kC}
-      "r" -> {:ok, :kD}
-      "f" -> {:ok, :kE}
-      "v" -> {:ok, :kF}
+      "z" -> {:ok, :ka}
+      "c" -> {:ok, :kb}
+      "4" -> {:ok, :kc}
+      "r" -> {:ok, :kd}
+      "f" -> {:ok, :ke}
+      "v" -> {:ok, :kf}
       _ -> :error
     end
   end

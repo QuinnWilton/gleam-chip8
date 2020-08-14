@@ -450,12 +450,13 @@ pub fn step(emulator: Emulator) -> Emulator {
       let instruction = instruction.decode_instruction(raw_instruction)
       Emulator(..emulator, pc: emulator.pc + 2)
       |> execute_instruction(instruction)
-      |> fn(e: Emulator) {
-        let registers = e.registers
-          |> registers.update(registers.ST, fn(old) { int.max(0, old - 1) })
-          |> registers.update(registers.DT, fn(old) { int.max(0, old - 1) })
-        Emulator(..e, registers: registers)
-      }
     }
   }
+}
+
+pub fn handle_timers(emulator: Emulator) -> Emulator {
+  let registers = emulator.registers
+    |> registers.update(registers.ST, fn(old) { int.max(0, old - 1) })
+    |> registers.update(registers.DT, fn(old) { int.max(0, old - 1) })
+  Emulator(..emulator, registers: registers)
 }

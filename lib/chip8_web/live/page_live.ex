@@ -21,6 +21,7 @@ defmodule Chip8Web.PageLive do
   @impl true
   def handle_event("reset", _value, socket) do
     emulator = Chip8.Emulator.reset(socket.assigns.emulator)
+
     socket =
       socket
       |> assign(:emulator, emulator)
@@ -83,14 +84,14 @@ defmodule Chip8Web.PageLive do
       {:awaiting_rom, _} ->
         []
 
-      {state, false} when state in [:running, :awaiting_input] ->
+      {_, false} ->
         [
           {"Run", "run", "button ghost primary"},
           {"Step", "step", "button ghost secondary"},
           {"Reset", "reset", "button ghost secondary"}
         ]
 
-      {state, true} when state in [:running, :awaiting_input] ->
+      {_, true} ->
         [
           {"Pause", "pause", "button ghost primary"},
           {"Reset", "reset", "button ghost secondary"}

@@ -365,10 +365,10 @@ pub fn execute_instruction(
       )
     }
     instruction.InstLDBReg(vx: vx) -> {
-      let x = registers.read(emulator.registers, vx)
-      let x0 = x / 100
-      let x1 = x % 100 / 10
-      let x2 = x % 10
+      let n = registers.read(emulator.registers, vx)
+      let x0 = n / 100
+      let x1 = n % 100 / 10
+      let x2 = n % 10
       let offset = registers.read(emulator.registers, registers.I)
       let m = emulator.memory
         |> memory.put(offset, <<x0>>)

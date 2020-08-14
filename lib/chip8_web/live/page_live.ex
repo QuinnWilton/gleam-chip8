@@ -64,6 +64,32 @@ defmodule Chip8Web.PageLive do
   end
 
   @impl true
+  def handle_event("key_up", %{"key" => key}, socket) do
+    case decode_key(key) do
+      {:ok, key} ->
+        emulator = Chip8.Emulator.handle_key_up(socket.assigns.emulator, key)
+
+        {:noreply, assign(socket, :emulator, emulator)}
+
+      :error ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_event("key_down", %{"key" => key}, socket) do
+    case decode_key(key) do
+      {:ok, key} ->
+        emulator = Chip8.Emulator.handle_key_down(socket.assigns.emulator, key)
+
+        {:noreply, assign(socket, :emulator, emulator)}
+
+      :error ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
   def handle_info(:next_frame, socket) do
     schedule_next_frame(socket)
 
@@ -76,6 +102,28 @@ defmodule Chip8Web.PageLive do
   defp schedule_next_frame(socket) do
     if socket.assigns.running do
       Process.send_after(self(), :next_frame, trunc(1000 / socket.assigns.fps))
+    end
+  end
+
+  defp decode_key(key) do
+    case key do
+      "1" -> {:ok, :k0}
+      "x" -> {:ok, :k1}
+      "2" -> {:ok, :k2}
+      "3" -> {:ok, :k3}
+      "q" -> {:ok, :k4}
+      "w" -> {:ok, :k5}
+      "e" -> {:ok, :k6}
+      "a" -> {:ok, :k7}
+      "s" -> {:ok, :k8}
+      "d" -> {:ok, :k9}
+      "z" -> {:ok, :kA}
+      "c" -> {:ok, :kB}
+      "4" -> {:ok, :kC}
+      "r" -> {:ok, :kD}
+      "f" -> {:ok, :kE}
+      "v" -> {:ok, :kF}
+      _ -> :error
     end
   end
 

@@ -17,11 +17,24 @@
       </div>
     </div>
   </div>
-  <%# <div class="window window-disassembler">
+  <div class="window window-disassembler">
       <h1 class="header">Disassembler</h1>
-      <div class="body"></div>
+      <div class="body">
+        <%= for {instruction, active} <- disassemble_instructions(@emulator) do %>
+          <%= if active do %>
+            <span class="active">
+              <span class="instruction">
+                <%= instruction %>
+              </span>
+              <span class="cursor">&lt;</span>
+            </span>
+          <% else %>
+            <span><%= instruction %></span>
+          <% end %>
+        <% end %>
+      </div>
   </div>
-  <div class="window window-memory">
+  <%# <div class="window window-memory">
       <h1 class="header">Memory</h1>
       <div class="body"></div>
   </div> %>

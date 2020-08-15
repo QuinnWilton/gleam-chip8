@@ -41,4 +41,10 @@ defmodule Chip8.Emulator do
       :chip8@emulator.handle_key_up(record, key)
     end)
   end
+
+  def disassemble_instructions(%Emulator{} = emulator, length) when is_integer(length) do
+    record = to_record(emulator)
+
+    :chip8@emulator.disassemble_instructions(record, length)
+  end
 end

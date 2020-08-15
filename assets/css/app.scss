@@ -1,5 +1,3 @@
-/* This file is for your main application css. */
-@import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
 
 @font-face {
@@ -79,6 +77,40 @@ body {
   background-color: #EE4266;
   font-size: 16px;
   padding: 4px;
+}
+
+.window-disassembler > .body {
+  display: flex;
+  flex-direction: column;
+  color: #9c9c9c;
+}
+
+.window-disassembler > .body > span {
+  padding: 2px 8px;
+}
+
+.window-disassembler > .body > span:nth-child(even) {
+  background-color: #232323;
+}
+
+.window-disassembler > .body > span.active {
+  display: flex;
+  justify-content: space-between;
+  background-color: #6153CC;
+  color: white;
+  padding: 0;
+}
+
+.window-disassembler > .body > span.active > .instruction {
+  padding: 2px 8px;
+}
+
+.window-disassembler > .body > span.active > .cursor {
+  height: 100%;
+  font-weight: bold;
+  color: #a89df7;
+  padding: 2px 8px;
+  background-color: #2e2767;
 }
 
 .screen {

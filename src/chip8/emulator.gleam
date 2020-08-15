@@ -305,19 +305,17 @@ pub fn execute_instruction(
       }
       Emulator(..emulator, screen: screen, registers: registers)
     }
-    instruction.SkipNextIfKeyPressed(value) -> {
-      let key = keyboard.to_key_code(value)
-      case keyboard.get_key_state(emulator.keyboard, key) {
-        keyboard.KeyUp -> emulator
-        keyboard.KeyDown -> Emulator(..emulator, pc: emulator.pc + 2)
-      }
+    instruction.SkipNextIfKeyPressed(
+      key,
+    ) -> case keyboard.get_key_state(emulator.keyboard, key) {
+      keyboard.KeyUp -> emulator
+      keyboard.KeyDown -> Emulator(..emulator, pc: emulator.pc + 2)
     }
-    instruction.SkipNextIfKeyNotPressed(value) -> {
-      let key = keyboard.to_key_code(value)
-      case keyboard.get_key_state(emulator.keyboard, key) {
-        keyboard.KeyUp -> Emulator(..emulator, pc: emulator.pc + 2)
-        keyboard.KeyDown -> emulator
-      }
+    instruction.SkipNextIfKeyNotPressed(
+      key,
+    ) -> case keyboard.get_key_state(emulator.keyboard, key) {
+      keyboard.KeyUp -> Emulator(..emulator, pc: emulator.pc + 2)
+      keyboard.KeyDown -> emulator
     }
     instruction.SetRegisterToDelayTimer(
       vx,
@@ -450,7 +448,7 @@ pub fn step(emulator: Emulator) -> Emulator {
     AwaitingROM -> emulator
     AwaitingInput(_) -> emulator
     Running -> {
-      let Ok(raw_instruction) = memory.read(emulator.memory, emulator.pc, 2)
+      assert Ok(raw_instruction) = memory.read(emulator.memory, emulator.pc, 2)
       let instruction = instruction.decode_instruction(raw_instruction)
       Emulator(..emulator, pc: emulator.pc + 2)
       |> execute_instruction(instruction)
@@ -463,4 +461,24 @@ pub fn handle_timers(emulator: Emulator) -> Emulator {
     |> registers.decrement_delay_timer()
     |> registers.decrement_sound_timer()
   Emulator(..emulator, registers: registers)
+}
+
+pub fn disassemble_instructions(
+  emulator: Emulator,
+  length: Int,
+) -> List(tuple(String, Bool)) {
+  let half_length = length / 2
+  let start = int.max(512, emulator.pc - half_length * 2)
+
+  list.range(0, length - 1)
+  |> list.map(
+    fn(n) {
+      let address = start + n * 2
+      assert Ok(raw) = memory.read(emulator.memory, address, 2)
+      let decoded = instruction.decode_instruction(raw)
+      let disassembled = instruction.disassemble(decoded)
+
+      tuple(disassembled, address == emulator.pc)
+    },
+  )
 }

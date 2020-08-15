@@ -127,6 +127,10 @@ defmodule Chip8Web.PageLive do
     end
   end
 
+  defp disassemble_instructions(%Chip8.Emulator{} = emulator) do
+    Chip8.Emulator.disassemble_instructions(emulator, 30)
+  end
+
   defp controls(%Chip8.Emulator{state: state}, running) do
     case {state, running} do
       {:awaiting_rom, _} ->

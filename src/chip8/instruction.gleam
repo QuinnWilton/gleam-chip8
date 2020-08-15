@@ -1,4 +1,7 @@
+import gleam/int
+import gleam/string
 import chip8/registers
+import chip8/keyboard
 
 pub type Instruction {
   ExecuteSystemCall(address: Int)
@@ -44,8 +47,9 @@ pub type Instruction {
     vy: registers.DataRegister,
     length: Int,
   )
-  SkipNextIfKeyPressed(value: Int)
-  SkipNextIfKeyNotPressed(value: Int)
+  SkipNextIfKeyPressed(key: keyboard.KeyCode)
+  SkipNextIfKeyNotPressed(key: keyboard.KeyCode)
+  Unknown(raw: BitString)
 }
 
 pub fn decode_instruction(instruction: BitString) -> Instruction {
@@ -183,8 +187,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       registers.to_data_register(y),
       n,
     )
-    <<14:4, x:4, 9:4, 14:4>> -> SkipNextIfKeyPressed(x)
-    <<14:4, x:4, 10:4, 1:4>> -> SkipNextIfKeyNotPressed(x)
+    <<14:4, x:4, 9:4, 14:4>> -> SkipNextIfKeyPressed(keyboard.to_key_code(x))
+    <<14:4, x:4, 10:4, 1:4>> -> SkipNextIfKeyNotPressed(keyboard.to_key_code(x))
     <<
       15:4,
       x:4,
@@ -229,5 +233,258 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       6:4,
       5:4,
     >> -> ReadRegistersFromAddressRegister(registers.to_data_register(x))
+    unknown -> Unknown(unknown)
+  }
+}
+
+pub fn disassemble(instruction: Instruction) -> String {
+  case instruction {
+    ExecuteSystemCall(
+      address,
+    ) -> string.join(["SYS", int.to_string(address)], with: " ")
+    ClearScreen -> "CLS"
+    ReturnFromSubroutine -> "RET"
+    JumpAbsolute(
+      address,
+    ) -> string.join(["JP", int.to_string(address)], with: " ")
+    CallSubroutine(
+      address,
+    ) -> string.join(["CALL", int.to_string(address)], with: " ")
+    SkipNextIfEqualConstant(
+      vx,
+      value,
+    ) -> string.join(
+      ["SE", registers.data_register_to_string(vx), int.to_string(value)],
+      with: " ",
+    )
+    SkipNextIfNotEqualConstant(
+      vx,
+      value,
+    ) -> string.join(
+      ["SNE", registers.data_register_to_string(vx), int.to_string(value)],
+      with: " ",
+    )
+    SkipNextIfEqualRegisters(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "SE",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterToConstant(
+      vx,
+      value,
+    ) -> string.join(
+      ["LD", registers.data_register_to_string(vx), int.to_string(value)],
+      with: " ",
+    )
+    AddToRegister(
+      vx,
+      value,
+    ) -> string.join(
+      ["ADD", registers.data_register_to_string(vx), int.to_string(value)],
+      with: " ",
+    )
+    SetRegisterToRegister(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "LD",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterOr(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "OR",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterAnd(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "AND",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterXor(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "XOR",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterAdd(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "ADD",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterSub(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "SUB",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterShiftRight(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "SHR",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterSubFlipped(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "SUBN",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetRegisterShiftLeft(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "SHL",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SkipNextIfNotEqualRegisters(
+      vx,
+      vy,
+    ) -> string.join(
+      [
+        "SNE",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+      ],
+      with: " ",
+    )
+    SetAddressRegisterToConstant(
+      address,
+    ) -> string.join(["LD", "I", int.to_string(address)], with: " ")
+    JumpRelative(
+      offset,
+    ) -> string.join(["JP", "V0", int.to_string(offset)], with: " ")
+    SetRegisterRandom(
+      vx,
+      mask,
+    ) -> string.join(
+      ["RND", registers.data_register_to_string(vx), int.to_string(mask)],
+      with: " ",
+    )
+    DisplaySprite(
+      vx,
+      vy,
+      length,
+    ) -> string.join(
+      [
+        "DRW",
+        registers.data_register_to_string(vx),
+        registers.data_register_to_string(vy),
+        int.to_string(length),
+      ],
+      with: " ",
+    )
+    SkipNextIfKeyPressed(
+      key,
+    ) -> string.join(["SKP", keyboard.key_code_to_string(key)], with: " ")
+    SkipNextIfKeyNotPressed(
+      key,
+    ) -> string.join(["SKNP", keyboard.key_code_to_string(key)], with: " ")
+    SetRegisterToDelayTimer(
+      vx,
+    ) -> string.join(
+      ["LD", registers.data_register_to_string(vx), "DT"],
+      with: " ",
+    )
+    WaitForKeyPress(
+      vx,
+    ) -> string.join(
+      ["LD", registers.data_register_to_string(vx), "K"],
+      with: " ",
+    )
+    SetDelayTimerToRegisterValue(
+      vx,
+    ) -> string.join(
+      ["LD", "DT", registers.data_register_to_string(vx)],
+      with: " ",
+    )
+    SetSoundTimerToRegisterValue(
+      vx,
+    ) -> string.join(
+      ["LD", "ST", registers.data_register_to_string(vx)],
+      with: " ",
+    )
+    AddToAddressRegister(
+      vx,
+    ) -> string.join(
+      ["ADD", "I", registers.data_register_to_string(vx)],
+      with: " ",
+    )
+    SetAddressRegisterToSpriteLocation(
+      vx,
+    ) -> string.join(
+      ["LD", "F", registers.data_register_to_string(vx)],
+      with: " ",
+    )
+    StoreBcdOfRegister(
+      vx,
+    ) -> string.join(
+      ["LD", "B", registers.data_register_to_string(vx)],
+      with: " ",
+    )
+    StoreRegistersAtAddressRegister(
+      vx,
+    ) -> string.join(
+      ["LD", "[I]", registers.data_register_to_string(vx)],
+      with: " ",
+    )
+    ReadRegistersFromAddressRegister(
+      vx,
+    ) -> string.join(
+      ["LD", registers.data_register_to_string(vx), "[I]"],
+      with: " ",
+    )
+    Unknown(_) -> "???"
   }
 }

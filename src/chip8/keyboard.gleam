@@ -106,3 +106,24 @@ pub fn key_code_to_int(key: KeyCode) -> Int {
     KF -> 15
   }
 }
+
+pub fn key_code_to_string(key: KeyCode) -> String {
+  case key {
+    K0 -> "K0"
+    K1 -> "K1"
+    K2 -> "K2"
+    K3 -> "K3"
+    K4 -> "K4"
+    K5 -> "K5"
+    K6 -> "K6"
+    K7 -> "K7"
+    K8 -> "K8"
+    K9 -> "K9"
+    KA -> "KA"
+    KB -> "KB"
+    KC -> "KC"
+    KD -> "KD"
+    KE -> "KE"
+    KF -> "KF"
+  }
+}

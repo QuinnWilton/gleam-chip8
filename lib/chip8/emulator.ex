@@ -24,11 +24,9 @@ defmodule Chip8.Emulator do
 
   def step(%Emulator{} = emulator) do
     with_record(emulator, fn record ->
-      record = :chip8@emulator.handle_timers(record)
-
-      Enum.reduce(0..11, record, fn _, acc ->
-        :chip8@emulator.step(acc)
-      end)
+      record
+      |> :chip8@emulator.handle_timers()
+      |> :chip8@emulator.step()
     end)
   end
 

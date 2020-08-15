@@ -24,42 +24,45 @@ pub type KeyState {
   KeyDown
 }
 
-pub type Keyboard =
-  map.Map(KeyCode, KeyState)
+pub opaque type Keyboard {
+  Keyboard(state: map.Map(KeyCode, KeyState))
+}
 
 pub fn new() -> Keyboard {
-  map.new()
-  |> map.insert(K0, KeyUp)
-  |> map.insert(K1, KeyUp)
-  |> map.insert(K2, KeyUp)
-  |> map.insert(K3, KeyUp)
-  |> map.insert(K4, KeyUp)
-  |> map.insert(K5, KeyUp)
-  |> map.insert(K6, KeyUp)
-  |> map.insert(K7, KeyUp)
-  |> map.insert(K8, KeyUp)
-  |> map.insert(K9, KeyUp)
-  |> map.insert(KA, KeyUp)
-  |> map.insert(KB, KeyUp)
-  |> map.insert(KC, KeyUp)
-  |> map.insert(KD, KeyUp)
-  |> map.insert(KE, KeyUp)
-  |> map.insert(KF, KeyUp)
+  let state = map.new()
+    |> map.insert(K0, KeyUp)
+    |> map.insert(K1, KeyUp)
+    |> map.insert(K2, KeyUp)
+    |> map.insert(K3, KeyUp)
+    |> map.insert(K4, KeyUp)
+    |> map.insert(K5, KeyUp)
+    |> map.insert(K6, KeyUp)
+    |> map.insert(K7, KeyUp)
+    |> map.insert(K8, KeyUp)
+    |> map.insert(K9, KeyUp)
+    |> map.insert(KA, KeyUp)
+    |> map.insert(KB, KeyUp)
+    |> map.insert(KC, KeyUp)
+    |> map.insert(KD, KeyUp)
+    |> map.insert(KE, KeyUp)
+    |> map.insert(KF, KeyUp)
+
+  Keyboard(state: state)
 }
 
 pub fn get_key_state(keyboard: Keyboard, key: KeyCode) -> KeyState {
-  case map.get(keyboard, key) {
+  case map.get(keyboard.state, key) {
     Ok(value) -> value
     Error(Nil) -> KeyUp
   }
 }
 
 pub fn handle_key_up(keyboard: Keyboard, key: KeyCode) -> Keyboard {
-  map.insert(keyboard, key, KeyUp)
+  Keyboard(state: map.insert(keyboard.state, key, KeyUp))
 }
 
 pub fn handle_key_down(keyboard: Keyboard, key: KeyCode) -> Keyboard {
-  map.insert(keyboard, key, KeyDown)
+  Keyboard(state: map.insert(keyboard.state, key, KeyDown))
 }
 
 pub fn to_key_code(i: Int) -> KeyCode {

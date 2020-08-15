@@ -91,10 +91,8 @@ fn encode_register_value(register: Register, value: Int) -> Int {
 }
 
 pub fn read(register_file: RegisterFile, register: Register) -> Int {
-  case map.get(register_file, register) {
-    Ok(value) -> value
-    Error(Nil) -> 0
-  }
+  assert Ok(value) = map.get(register_file, register)
+  value
 }
 
 pub fn write(

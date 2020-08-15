@@ -224,11 +224,11 @@ pub fn execute_instruction(
         |> registers.write(registers.VF, not_borrow)
       Emulator(..emulator, registers: updated_registers)
     }
-    instruction.SetRegisterShiftRight(vx: vx, vy: vy) -> {
-      let vy_value = registers.read(emulator.registers, vy)
-      let lsb = bitwise.and(vy_value, 1)
+    instruction.SetRegisterShiftRight(vx: vx, vy: _vy) -> {
+      let value = registers.read(emulator.registers, vx)
+      let lsb = bitwise.and(value, 1)
       let updated_registers = emulator.registers
-        |> registers.write(vx, vy_value / 2)
+        |> registers.write(vx, value / 2)
         |> registers.write(registers.VF, lsb)
       Emulator(..emulator, registers: updated_registers)
     }
@@ -245,15 +245,15 @@ pub fn execute_instruction(
         |> registers.write(registers.VF, not_borrow)
       Emulator(..emulator, registers: updated_registers)
     }
-    instruction.SetRegisterShiftLeft(vx: vx, vy: vy) -> {
-      let vy_value = registers.read(emulator.registers, vy)
-      let msb = bitwise.and(vy_value, 128)
+    instruction.SetRegisterShiftLeft(vx: vx, vy: _vy) -> {
+      let value = registers.read(emulator.registers, vx)
+      let msb = bitwise.and(value, 128)
       let vf = case msb {
         0 -> 0
         128 -> 1
       }
       let updated_registers = emulator.registers
-        |> registers.write(vx, vy_value * 2)
+        |> registers.write(vx, value * 2)
         |> registers.write(registers.VF, vf)
       Emulator(..emulator, registers: updated_registers)
     }

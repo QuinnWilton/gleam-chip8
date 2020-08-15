@@ -296,7 +296,7 @@ pub fn execute_instruction(
         collision,
       ) = screen.draw_sprite(emulator.screen, sprite, x, y)
       let registers = case collision {
-        False -> registers.write(emulator.registers, registers.VF, 1)
+        False -> registers.write(emulator.registers, registers.VF, 0)
         True -> registers.write(emulator.registers, registers.VF, 1)
       }
       Emulator(..emulator, screen: screen, registers: registers)

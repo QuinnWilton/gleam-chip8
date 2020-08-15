@@ -38,7 +38,7 @@ pub type Instruction {
   SetRegisterShiftLeft(vx: registers.DataRegister, vy: registers.DataRegister)
   SetRegisterSub(vx: registers.DataRegister, vy: registers.DataRegister)
   SetRegisterSubFlipped(vx: registers.DataRegister, vy: registers.DataRegister)
-  SetRegisterRandom(vx: registers.DataRegister, value: Int)
+  SetRegisterRandom(vx: registers.DataRegister, mask: Int)
   DisplaySprite(
     vx: registers.DataRegister,
     vy: registers.DataRegister,
@@ -50,51 +50,44 @@ pub type Instruction {
 
 pub fn decode_instruction(instruction: BitString) -> Instruction {
   case instruction {
-    <<0:4, nnn:12>> -> ExecuteSystemCall(address: nnn)
+    <<0:4, nnn:12>> -> ExecuteSystemCall(nnn)
     <<0:4, 0:4, 14:4, 0:4>> -> ClearScreen
     <<0:4, 0:4, 14:4, 14:4>> -> ReturnFromSubroutine
-    <<1:4, nnn:12>> -> JumpAbsolute(address: nnn)
-    <<2:4, nnn:12>> -> CallSubroutine(address: nnn)
+    <<1:4, nnn:12>> -> JumpAbsolute(nnn)
+    <<2:4, nnn:12>> -> CallSubroutine(nnn)
     <<
       3:4,
       x:4,
       kk:8,
-    >> -> SkipNextIfEqualConstant(vx: registers.to_data_register(x), value: kk)
+    >> -> SkipNextIfEqualConstant(registers.to_data_register(x), kk)
     <<
       4:4,
       x:4,
       kk:8,
-    >> -> SkipNextIfNotEqualConstant(
-      vx: registers.to_data_register(x),
-      value: kk,
-    )
+    >> -> SkipNextIfNotEqualConstant(registers.to_data_register(x), kk)
     <<
       5:4,
       x:4,
       y:4,
       0:4,
     >> -> SkipNextIfEqualRegisters(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       6:4,
       x:4,
       kk:8,
-    >> -> SetRegisterToConstant(vx: registers.to_data_register(x), value: kk)
-    <<
-      7:4,
-      x:4,
-      kk:8,
-    >> -> AddToRegister(vx: registers.to_data_register(x), value: kk)
+    >> -> SetRegisterToConstant(registers.to_data_register(x), kk)
+    <<7:4, x:4, kk:8>> -> AddToRegister(registers.to_data_register(x), kk)
     <<
       8:4,
       x:4,
       y:4,
       0:4,
     >> -> SetRegisterToRegister(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -102,8 +95,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       1:4,
     >> -> SetRegisterOr(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -111,8 +104,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       2:4,
     >> -> SetRegisterAnd(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -120,8 +113,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       3:4,
     >> -> SetRegisterXor(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -129,8 +122,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       4:4,
     >> -> SetRegisterAdd(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -138,8 +131,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       5:4,
     >> -> SetRegisterSub(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -147,8 +140,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       6:4,
     >> -> SetRegisterShiftRight(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -156,8 +149,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       7:4,
     >> -> SetRegisterSubFlipped(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       8:4,
@@ -165,8 +158,8 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       14:4,
     >> -> SetRegisterShiftLeft(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
     <<
       9:4,
@@ -174,81 +167,67 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       y:4,
       0:4,
     >> -> SkipNextIfEqualRegisters(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
+      registers.to_data_register(x),
+      registers.to_data_register(y),
     )
-    <<10:4, nnn:12>> -> SetAddressRegisterToConstant(address: nnn)
-    <<11:4, nnn:12>> -> JumpRelative(offset: nnn)
-    <<
-      12:4,
-      x:4,
-      nn:8,
-    >> -> SetRegisterRandom(vx: registers.to_data_register(x), value: nn)
+    <<10:4, nnn:12>> -> SetAddressRegisterToConstant(nnn)
+    <<11:4, nnn:12>> -> JumpRelative(nnn)
+    <<12:4, x:4, nn:8>> -> SetRegisterRandom(registers.to_data_register(x), nn)
     <<
       13:4,
       x:4,
       y:4,
       n:4,
     >> -> DisplaySprite(
-      vx: registers.to_data_register(x),
-      vy: registers.to_data_register(y),
-      length: n,
+      registers.to_data_register(x),
+      registers.to_data_register(y),
+      n,
     )
-    <<14:4, x:4, 9:4, 14:4>> -> SkipNextIfKeyPressed(value: x)
-    <<14:4, x:4, 10:4, 1:4>> -> SkipNextIfKeyNotPressed(value: x)
+    <<14:4, x:4, 9:4, 14:4>> -> SkipNextIfKeyPressed(x)
+    <<14:4, x:4, 10:4, 1:4>> -> SkipNextIfKeyNotPressed(x)
     <<
       15:4,
       x:4,
       0:4,
       7:4,
-    >> -> SetRegisterToDelayTimer(vx: registers.to_data_register(x))
-    <<
-      15:4,
-      x:4,
-      0:4,
-      10:4,
-    >> -> WaitForKeyPress(vx: registers.to_data_register(x))
+    >> -> SetRegisterToDelayTimer(registers.to_data_register(x))
+    <<15:4, x:4, 0:4, 10:4>> -> WaitForKeyPress(registers.to_data_register(x))
     <<
       15:4,
       x:4,
       1:4,
       5:4,
-    >> -> SetDelayTimerToRegisterValue(vx: registers.to_data_register(x))
+    >> -> SetDelayTimerToRegisterValue(registers.to_data_register(x))
     <<
       15:4,
       x:4,
       1:4,
       8:4,
-    >> -> SetSoundTimerToRegisterValue(vx: registers.to_data_register(x))
+    >> -> SetSoundTimerToRegisterValue(registers.to_data_register(x))
     <<
       15:4,
       x:4,
       1:4,
       14:4,
-    >> -> AddToAddressRegister(vx: registers.to_data_register(x))
+    >> -> AddToAddressRegister(registers.to_data_register(x))
     <<
       15:4,
       x:4,
       2:4,
       9:4,
-    >> -> SetAddressRegisterToSpriteLocation(vx: registers.to_data_register(x))
-    <<
-      15:4,
-      x:4,
-      3:4,
-      3:4,
-    >> -> StoreBcdOfRegister(vx: registers.to_data_register(x))
+    >> -> SetAddressRegisterToSpriteLocation(registers.to_data_register(x))
+    <<15:4, x:4, 3:4, 3:4>> -> StoreBcdOfRegister(registers.to_data_register(x))
     <<
       15:4,
       x:4,
       5:4,
       5:4,
-    >> -> StoreRegistersAtAddressRegister(vx: registers.to_data_register(x))
+    >> -> StoreRegistersAtAddressRegister(registers.to_data_register(x))
     <<
       15:4,
       x:4,
       6:4,
       5:4,
-    >> -> ReadRegistersFromAddressRegister(vx: registers.to_data_register(x))
+    >> -> ReadRegistersFromAddressRegister(registers.to_data_register(x))
   }
 }

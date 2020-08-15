@@ -95,7 +95,7 @@ pub fn execute_instruction(
   instruction: instruction.Instruction,
 ) -> Emulator {
   case instruction {
-    instruction.ExecuteSystemCall(_address) -> emulator
+    instruction.ExecuteSystemCall(_) -> emulator
     instruction.ClearScreen -> Emulator(
       ..emulator,
       screen: screen.clear(emulator.screen),
@@ -113,22 +113,22 @@ pub fn execute_instruction(
       stack: stack.push(emulator.stack, emulator.pc),
     )
     instruction.SkipNextIfEqualConstant(
-      vx: vx,
-      value: value,
+      vx,
+      value,
     ) -> case registers.get_data_register(emulator.registers, vx) == value {
       True -> Emulator(..emulator, pc: emulator.pc + 2)
       False -> emulator
     }
     instruction.SkipNextIfNotEqualConstant(
-      vx: vx,
-      value: value,
+      vx,
+      value,
     ) -> case registers.get_data_register(emulator.registers, vx) == value {
       True -> emulator
       False -> Emulator(..emulator, pc: emulator.pc + 2)
     }
     instruction.SkipNextIfEqualRegisters(
-      vx: vx,
-      vy: vy,
+      vx,
+      vy,
     ) -> case registers.get_data_register(
       emulator.registers,
       vx,
@@ -137,15 +137,15 @@ pub fn execute_instruction(
       False -> emulator
     }
     instruction.SetRegisterToConstant(
-      vx: vx,
-      value: value,
+      vx,
+      value,
     ) -> Emulator(
       ..emulator,
       registers: registers.set_data_register(emulator.registers, vx, value),
     )
     instruction.AddToRegister(
-      vx: vx,
-      value: value,
+      vx,
+      value,
     ) -> Emulator(
       ..emulator,
       registers: registers.update_data_register(
@@ -155,8 +155,8 @@ pub fn execute_instruction(
       ),
     )
     instruction.SetRegisterToRegister(
-      vx: vx,
-      vy: vy,
+      vx,
+      vy,
     ) -> Emulator(
       ..emulator,
       registers: registers.set_data_register(
@@ -165,7 +165,7 @@ pub fn execute_instruction(
         registers.get_data_register(emulator.registers, vy),
       ),
     )
-    instruction.SetRegisterOr(vx: vx, vy: vy) -> {
+    instruction.SetRegisterOr(vx, vy) -> {
       let vy_value = registers.get_data_register(emulator.registers, vy)
       Emulator(
         ..emulator,
@@ -176,7 +176,7 @@ pub fn execute_instruction(
         ),
       )
     }
-    instruction.SetRegisterAnd(vx: vx, vy: vy) -> {
+    instruction.SetRegisterAnd(vx, vy) -> {
       let vy_value = registers.get_data_register(emulator.registers, vy)
       Emulator(
         ..emulator,
@@ -187,7 +187,7 @@ pub fn execute_instruction(
         ),
       )
     }
-    instruction.SetRegisterXor(vx: vx, vy: vy) -> {
+    instruction.SetRegisterXor(vx, vy) -> {
       let vy_value = registers.get_data_register(emulator.registers, vy)
       Emulator(
         ..emulator,
@@ -198,7 +198,7 @@ pub fn execute_instruction(
         ),
       )
     }
-    instruction.SetRegisterAdd(vx: vx, vy: vy) -> {
+    instruction.SetRegisterAdd(vx, vy) -> {
       let vx_value = registers.get_data_register(emulator.registers, vx)
       let vy_value = registers.get_data_register(emulator.registers, vy)
       let result = vx_value + vy_value
@@ -211,7 +211,7 @@ pub fn execute_instruction(
         |> registers.set_data_register(registers.VF, carry)
       Emulator(..emulator, registers: updated_registers)
     }
-    instruction.SetRegisterSub(vx: vx, vy: vy) -> {
+    instruction.SetRegisterSub(vx, vy) -> {
       let vx_value = registers.get_data_register(emulator.registers, vx)
       let vy_value = registers.get_data_register(emulator.registers, vy)
       let result = vx_value - vy_value
@@ -224,7 +224,7 @@ pub fn execute_instruction(
         |> registers.set_data_register(registers.VF, not_borrow)
       Emulator(..emulator, registers: updated_registers)
     }
-    instruction.SetRegisterShiftRight(vx: vx, vy: _vy) -> {
+    instruction.SetRegisterShiftRight(vx, _) -> {
       let value = registers.get_data_register(emulator.registers, vx)
       let lsb = bitwise.and(value, 1)
       let updated_registers = emulator.registers
@@ -232,7 +232,7 @@ pub fn execute_instruction(
         |> registers.set_data_register(registers.VF, lsb)
       Emulator(..emulator, registers: updated_registers)
     }
-    instruction.SetRegisterSubFlipped(vx: vx, vy: vy) -> {
+    instruction.SetRegisterSubFlipped(vx, vy) -> {
       let vx_value = registers.get_data_register(emulator.registers, vx)
       let vy_value = registers.get_data_register(emulator.registers, vy)
       let result = vy_value - vx_value
@@ -245,7 +245,7 @@ pub fn execute_instruction(
         |> registers.set_data_register(registers.VF, not_borrow)
       Emulator(..emulator, registers: updated_registers)
     }
-    instruction.SetRegisterShiftLeft(vx: vx, vy: _vy) -> {
+    instruction.SetRegisterShiftLeft(vx, _) -> {
       let value = registers.get_data_register(emulator.registers, vx)
       let msb = bitwise.and(value, 128)
       let vf = case msb {
@@ -257,7 +257,7 @@ pub fn execute_instruction(
         |> registers.set_data_register(registers.VF, vf)
       Emulator(..emulator, registers: updated_registers)
     }
-    instruction.SkipNextIfNotEqualRegisters(vx: vx, vy: vy) -> {
+    instruction.SkipNextIfNotEqualRegisters(vx, vy) -> {
       let vx_value = registers.get_data_register(emulator.registers, vx)
       let vy_value = registers.get_data_register(emulator.registers, vy)
       case vx_value == vy_value {
@@ -277,15 +277,15 @@ pub fn execute_instruction(
       ..emulator,
       pc: offset + registers.get_data_register(emulator.registers, registers.V0),
     )
-    instruction.SetRegisterRandom(vx: vx, value: value) -> {
+    instruction.SetRegisterRandom(vx, mask) -> {
       let rand = externals.rand_uniform(256) - 1
-      let result = bitwise.and(rand, value)
+      let result = bitwise.and(rand, mask)
       Emulator(
         ..emulator,
         registers: registers.set_data_register(emulator.registers, vx, result),
       )
     }
-    instruction.DisplaySprite(vx: vx, vy: vy, length: length) -> {
+    instruction.DisplaySprite(vx, vy, length) -> {
       let x = registers.get_data_register(emulator.registers, vx)
       let y = registers.get_data_register(emulator.registers, vy)
       let offset = registers.get_address_register(emulator.registers)
@@ -305,14 +305,14 @@ pub fn execute_instruction(
       }
       Emulator(..emulator, screen: screen, registers: registers)
     }
-    instruction.SkipNextIfKeyPressed(value: value) -> {
+    instruction.SkipNextIfKeyPressed(value) -> {
       let key = keyboard.to_key_code(value)
       case keyboard.get_key_state(emulator.keyboard, key) {
         keyboard.KeyUp -> emulator
         keyboard.KeyDown -> Emulator(..emulator, pc: emulator.pc + 2)
       }
     }
-    instruction.SkipNextIfKeyNotPressed(value: value) -> {
+    instruction.SkipNextIfKeyNotPressed(value) -> {
       let key = keyboard.to_key_code(value)
       case keyboard.get_key_state(emulator.keyboard, key) {
         keyboard.KeyUp -> Emulator(..emulator, pc: emulator.pc + 2)
@@ -320,7 +320,7 @@ pub fn execute_instruction(
       }
     }
     instruction.SetRegisterToDelayTimer(
-      vx: vx,
+      vx,
     ) -> Emulator(
       ..emulator,
       registers: registers.set_data_register(
@@ -330,10 +330,10 @@ pub fn execute_instruction(
       ),
     )
     instruction.WaitForKeyPress(
-      vx: vx,
+      vx,
     ) -> Emulator(..emulator, state: AwaitingInput(vx: vx))
     instruction.SetDelayTimerToRegisterValue(
-      vx: vx,
+      vx,
     ) -> Emulator(
       ..emulator,
       registers: registers.set_delay_timer(
@@ -342,7 +342,7 @@ pub fn execute_instruction(
       ),
     )
     instruction.SetSoundTimerToRegisterValue(
-      vx: vx,
+      vx,
     ) -> Emulator(
       ..emulator,
       registers: registers.set_sound_timer(
@@ -351,7 +351,7 @@ pub fn execute_instruction(
       ),
     )
     instruction.AddToAddressRegister(
-      vx: vx,
+      vx,
     ) -> Emulator(
       ..emulator,
       registers: registers.update_address_register(
@@ -359,7 +359,7 @@ pub fn execute_instruction(
         fn(old) { old + registers.get_data_register(emulator.registers, vx) },
       ),
     )
-    instruction.SetAddressRegisterToSpriteLocation(vx: vx) -> {
+    instruction.SetAddressRegisterToSpriteLocation(vx) -> {
       let character = registers.get_data_register(emulator.registers, vx)
       let offset = character * 5
       Emulator(
@@ -367,7 +367,7 @@ pub fn execute_instruction(
         registers: registers.set_address_register(emulator.registers, offset),
       )
     }
-    instruction.StoreBcdOfRegister(vx: vx) -> {
+    instruction.StoreBcdOfRegister(vx) -> {
       let n = registers.get_data_register(emulator.registers, vx)
       let x0 = n / 100
       let x1 = n % 100 / 10
@@ -379,7 +379,7 @@ pub fn execute_instruction(
         |> memory.put(offset + 2, <<x2:size(8)>>)
       Emulator(..emulator, memory: m)
     }
-    instruction.StoreRegistersAtAddressRegister(vx: vx) -> {
+    instruction.StoreRegistersAtAddressRegister(vx) -> {
       let address = registers.get_address_register(emulator.registers)
       let tuple(
         emulator,
@@ -411,7 +411,7 @@ pub fn execute_instruction(
       )
       emulator
     }
-    instruction.ReadRegistersFromAddressRegister(vx: vx) -> {
+    instruction.ReadRegistersFromAddressRegister(vx) -> {
       let address = registers.get_address_register(emulator.registers)
       let tuple(
         emulator,

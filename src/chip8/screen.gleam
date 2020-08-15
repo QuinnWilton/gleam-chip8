@@ -4,7 +4,7 @@ import gleam/list
 import chip8/externals
 import chip8/sprite
 
-pub type Screen {
+pub opaque type Screen {
   Screen(width: Int, height: Int, contents: List(List(Bool)))
 }
 

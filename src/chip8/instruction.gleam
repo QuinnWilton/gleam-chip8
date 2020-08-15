@@ -45,15 +45,30 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
     <<0:4, 0:4, 14:4, 14:4>> -> ReturnFromSubroutine
     <<1:4, nnn:12>> -> JumpAbsolute(address: nnn)
     <<2:4, nnn:12>> -> CallSubroutine(address: nnn)
-    <<3:4, x:4, kk:8>> -> SkipNextIfEqualConstant(vx: registers.to_register(x), value: kk)
-    <<4:4, x:4, kk:8>> -> SkipNextIfNotEqualConstant(vx: registers.to_register(x), value: kk)
+    <<
+      3:4,
+      x:4,
+      kk:8,
+    >> -> SkipNextIfEqualConstant(vx: registers.to_register(x), value: kk)
+    <<
+      4:4,
+      x:4,
+      kk:8,
+    >> -> SkipNextIfNotEqualConstant(vx: registers.to_register(x), value: kk)
     <<
       5:4,
       x:4,
       y:4,
       0:4,
-    >> -> SkipNextIfEqualRegisters(vx: registers.to_register(x), vy: registers.to_register(y))
-    <<6:4, x:4, kk:8>> -> SetRegisterToConstant(vx: registers.to_register(x), value: kk)
+    >> -> SkipNextIfEqualRegisters(
+      vx: registers.to_register(x),
+      vy: registers.to_register(y),
+    )
+    <<
+      6:4,
+      x:4,
+      kk:8,
+    >> -> SetRegisterToConstant(vx: registers.to_register(x), value: kk)
     <<7:4, x:4, kk:8>> -> AddToRegister(vx: registers.to_register(x), value: kk)
     <<
       8:4,
@@ -69,19 +84,28 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       x:4,
       y:4,
       1:4,
-    >> -> SetRegisterOr(vx: registers.to_register(x), vy: registers.to_register(y))
+    >> -> SetRegisterOr(
+      vx: registers.to_register(x),
+      vy: registers.to_register(y),
+    )
     <<
       8:4,
       x:4,
       y:4,
       2:4,
-    >> -> SetRegisterAnd(vx: registers.to_register(x), vy: registers.to_register(y))
+    >> -> SetRegisterAnd(
+      vx: registers.to_register(x),
+      vy: registers.to_register(y),
+    )
     <<
       8:4,
       x:4,
       y:4,
       3:4,
-    >> -> SetRegisterXor(vx: registers.to_register(x), vy: registers.to_register(y))
+    >> -> SetRegisterXor(
+      vx: registers.to_register(x),
+      vy: registers.to_register(y),
+    )
     <<
       8:4,
       x:4,
@@ -105,7 +129,10 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       x:4,
       y:4,
       6:4,
-    >> -> SetRegisterShiftRight(vx: registers.to_register(x), vy: registers.to_register(y))
+    >> -> SetRegisterShiftRight(
+      vx: registers.to_register(x),
+      vy: registers.to_register(y),
+    )
     <<
       8:4,
       x:4,
@@ -120,16 +147,26 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       x:4,
       y:4,
       14:4,
-    >> -> SetRegisterShiftLeft(vx: registers.to_register(x), vy: registers.to_register(y))
+    >> -> SetRegisterShiftLeft(
+      vx: registers.to_register(x),
+      vy: registers.to_register(y),
+    )
     <<
       9:4,
       x:4,
       y:4,
       0:4,
-    >> -> SkipNextIfEqualRegisters(vx: registers.to_register(x), vy: registers.to_register(y))
+    >> -> SkipNextIfEqualRegisters(
+      vx: registers.to_register(x),
+      vy: registers.to_register(y),
+    )
     <<10:4, nnn:12>> -> SetAddressRegisterToConstant(address: nnn)
     <<11:4, nnn:12>> -> JumpRelative(offset: nnn)
-    <<12:4, x:4, nn:8>> -> SetRegisterRandom(vx: registers.to_register(x), value: nn)
+    <<
+      12:4,
+      x:4,
+      nn:8,
+    >> -> SetRegisterRandom(vx: registers.to_register(x), value: nn)
     <<
       13:4,
       x:4,
@@ -142,14 +179,49 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
     )
     <<14:4, x:4, 9:4, 14:4>> -> SkipNextIfKeyPressed(value: x)
     <<14:4, x:4, 10:4, 1:4>> -> SkipNextIfKeyNotPressed(value: x)
-    <<15:4, x:4, 0:4, 7:4>> -> SetRegisterToDelayTimer(vx: registers.to_register(x))
+    <<
+      15:4,
+      x:4,
+      0:4,
+      7:4,
+    >> -> SetRegisterToDelayTimer(vx: registers.to_register(x))
     <<15:4, x:4, 0:4, 10:4>> -> WaitForKeyPress(vx: registers.to_register(x))
-    <<15:4, x:4, 1:4, 5:4>> -> SetDelayTimerToRegisterValue(vx: registers.to_register(x))
-    <<15:4, x:4, 1:4, 8:4>> -> SetSoundTimerToRegisterValue(vx: registers.to_register(x))
-    <<15:4, x:4, 1:4, 14:4>> -> AddToAddressRegister(vx: registers.to_register(x))
-    <<15:4, x:4, 2:4, 9:4>> -> SetAddressRegisterToSpriteLocation(vx: registers.to_register(x))
+    <<
+      15:4,
+      x:4,
+      1:4,
+      5:4,
+    >> -> SetDelayTimerToRegisterValue(vx: registers.to_register(x))
+    <<
+      15:4,
+      x:4,
+      1:4,
+      8:4,
+    >> -> SetSoundTimerToRegisterValue(vx: registers.to_register(x))
+    <<
+      15:4,
+      x:4,
+      1:4,
+      14:4,
+    >> -> AddToAddressRegister(vx: registers.to_register(x))
+    <<
+      15:4,
+      x:4,
+      2:4,
+      9:4,
+    >> -> SetAddressRegisterToSpriteLocation(vx: registers.to_register(x))
     <<15:4, x:4, 3:4, 3:4>> -> StoreBcdOfRegister(vx: registers.to_register(x))
-    <<15:4, x:4, 5:4, 5:4>> -> StoreRegistersAtAddressRegister(vx: registers.to_register(x))
-    <<15:4, x:4, 6:4, 5:4>> -> ReadRegistersFromAddressRegister(vx: registers.to_register(x))
+    <<
+      15:4,
+      x:4,
+      5:4,
+      5:4,
+    >> -> StoreRegistersAtAddressRegister(vx: registers.to_register(x))
+    <<
+      15:4,
+      x:4,
+      6:4,
+      5:4,
+    >> -> ReadRegistersFromAddressRegister(vx: registers.to_register(x))
   }
 }

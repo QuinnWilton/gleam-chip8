@@ -75,7 +75,7 @@ pub fn draw_sprite(
         tuple(screen, 0, collision),
         fn(pixel, acc) {
           let tuple(screen, dx, collision) = acc
-          let collision = collision || get_pixel(screen, x + dx, y + dy)
+          let collision = collision || {get_pixel(screen, x + dx, y + dy) && pixel}
           let screen = case pixel {
             False -> screen
             True -> toggle_pixel(screen, x + dx, y + dy)

@@ -7,6 +7,11 @@
 
 html {
   background-color: black;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
 body {
@@ -16,7 +21,7 @@ body {
 
 .grid-container {
   display: grid;
-  grid-auto-columns: min-content auto auto;
+  grid-auto-columns: min-content 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 32px 32px;
   grid-template-areas: "screen disassembler memory" "controls disassembler memory";

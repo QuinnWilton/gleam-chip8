@@ -28,5 +28,6 @@ pub fn read(
   position: Int,
   length: Int,
 ) -> Result(BitString, Nil) {
+  let position = position % bit_string.byte_size(memory)
   bit_string.part(memory, position, length)
 }

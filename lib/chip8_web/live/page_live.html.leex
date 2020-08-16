@@ -20,16 +20,16 @@
   <div class="window window-disassembler">
       <h1 class="header">Disassembler</h1>
       <div class="body">
-        <%= for {instruction, active} <- disassemble_instructions(@emulator) do %>
+        <%= for {address, instruction, active} <- disassemble_instructions(@emulator) do %>
           <%= if active do %>
             <span class="active">
               <span class="instruction">
-                <%= instruction %>
+               <%= address %>: <%= instruction %>
               </span>
               <span class="cursor">&lt;</span>
             </span>
           <% else %>
-            <span><%= instruction %></span>
+            <span><%= address %>: <%= instruction %></span>
           <% end %>
         <% end %>
       </div>

@@ -1,6 +1,7 @@
 import gleam/bitwise
 import gleam/int
 import gleam/list
+import gleam/string
 import chip8/helpers
 import chip8/instruction
 import chip8/keyboard
@@ -467,7 +468,7 @@ pub fn handle_timers(emulator: Emulator) -> Emulator {
 pub fn disassemble_instructions(
   emulator: Emulator,
   length: Int,
-) -> List(tuple(String, Bool)) {
+) -> List(tuple(String, String, Bool)) {
   let half_length = length / 2
   let start = int.max(512, emulator.pc - half_length * 2)
 
@@ -479,7 +480,7 @@ pub fn disassemble_instructions(
       let decoded = instruction.decode_instruction(raw)
       let disassembled = instruction.disassemble(decoded)
 
-      tuple(disassembled, address == emulator.pc)
+      tuple(helpers.int_to_hex_string(address), disassembled, address == emulator.pc)
     },
   )
 }

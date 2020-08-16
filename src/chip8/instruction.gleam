@@ -1,7 +1,8 @@
 import gleam/int
 import gleam/string
-import chip8/registers
+import chip8/helpers
 import chip8/keyboard
+import chip8/registers
 
 pub type Instruction {
   ExecuteSystemCall(address: Int)
@@ -241,15 +242,15 @@ pub fn disassemble(instruction: Instruction) -> String {
   case instruction {
     ExecuteSystemCall(
       address,
-    ) -> string.join(["SYS", int.to_string(address)], with: " ")
+    ) -> string.join(["SYS", helpers.int_to_hex_string(address)], with: " ")
     ClearScreen -> "CLS"
     ReturnFromSubroutine -> "RET"
     JumpAbsolute(
       address,
-    ) -> string.join(["JP", int.to_string(address)], with: " ")
+    ) -> string.join(["JP", helpers.int_to_hex_string(address)], with: " ")
     CallSubroutine(
       address,
-    ) -> string.join(["CALL", int.to_string(address)], with: " ")
+    ) -> string.join(["CALL", helpers.int_to_hex_string(address)], with: " ")
     SkipNextIfEqualConstant(
       vx,
       value,
@@ -401,10 +402,10 @@ pub fn disassemble(instruction: Instruction) -> String {
     )
     SetAddressRegisterToConstant(
       address,
-    ) -> string.join(["LD", "I", int.to_string(address)], with: " ")
+    ) -> string.join(["LD", "I", helpers.int_to_hex_string(address)], with: " ")
     JumpRelative(
       offset,
-    ) -> string.join(["JP", "V0", int.to_string(offset)], with: " ")
+    ) -> string.join(["JP", "V0", helpers.int_to_hex_string(offset)], with: " ")
     SetRegisterRandom(
       vx,
       mask,

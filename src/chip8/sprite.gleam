@@ -1,12 +1,12 @@
 import gleam/list
 import gleam/bitwise
-import chip8/externals
+import chip8/helpers
 
 pub type Sprite =
   List(List(Bool))
 
 pub fn to_sprite(data: BitString) -> Sprite {
-  let rows = externals.bitstring_to_list(data)
+  let rows = helpers.bitstring_to_list(data)
 
   list.map(
     rows,

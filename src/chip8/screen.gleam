@@ -1,7 +1,7 @@
 import gleam/bit_string
 import gleam/bool
 import gleam/list
-import chip8/externals
+import chip8/helpers
 import chip8/sprite
 
 pub opaque type Screen {

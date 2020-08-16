@@ -1,7 +1,7 @@
 import gleam/bitwise
 import gleam/int
 import gleam/list
-import chip8/externals
+import chip8/helpers
 import chip8/instruction
 import chip8/keyboard
 import chip8/memory
@@ -279,7 +279,7 @@ pub fn execute_instruction(
       pc: offset + registers.get_data_register(emulator.registers, registers.V0),
     )
     instruction.SetRegisterRandom(vx, mask) -> {
-      let rand = externals.rand_uniform(256) - 1
+      let rand = helpers.rand_uniform(256) - 1
       let result = bitwise.and(rand, mask)
       Emulator(
         ..emulator,

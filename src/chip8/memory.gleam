@@ -1,12 +1,12 @@
 import gleam/bit_string
-import chip8/externals
+import chip8/helpers
 
 pub opaque type Memory {
   Memory(data: BitString)
 }
 
 pub fn new(size: Int) -> Memory {
-  Memory(data: externals.bitstring_copy(<<0>>, size))
+  Memory(data: helpers.bitstring_copy(<<0>>, size))
 }
 
 pub fn put(memory: Memory, position: Int, data: BitString) -> Memory {

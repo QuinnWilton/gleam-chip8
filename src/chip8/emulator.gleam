@@ -95,6 +95,7 @@ pub fn execute_instruction(
   instruction: instruction.Instruction,
 ) -> Emulator {
   case instruction {
+    instruction.Unknown(_) -> emulator
     instruction.ExecuteSystemCall(_) -> emulator
     instruction.ClearScreen -> Emulator(
       ..emulator,

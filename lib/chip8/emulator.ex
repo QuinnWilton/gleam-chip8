@@ -24,9 +24,7 @@ defmodule Chip8.Emulator do
 
   def step(%Emulator{} = emulator) do
     with_record(emulator, fn record ->
-      record
-      |> :chip8@emulator.handle_timers()
-      |> :chip8@emulator.step()
+      :chip8@emulator.step(record)
     end)
   end
 
@@ -39,6 +37,12 @@ defmodule Chip8.Emulator do
   def handle_key_up(%Emulator{} = emulator, key) when is_atom(key) do
     with_record(emulator, fn record ->
       :chip8@emulator.handle_key_up(record, key)
+    end)
+  end
+
+  def handle_timers(%Emulator{} = emulator) do
+    with_record(emulator, fn record ->
+      :chip8@emulator.handle_timers(record)
     end)
   end
 

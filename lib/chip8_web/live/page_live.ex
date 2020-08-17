@@ -1,7 +1,7 @@
 defmodule Chip8Web.PageLive do
   use Chip8Web, :live_view
 
-  @fps 60
+  @milliseconds_per_cycle 2
 
   @impl true
   def mount(_params, _session, socket) do
@@ -11,7 +11,7 @@ defmodule Chip8Web.PageLive do
       assign(socket,
         emulator: emulator,
         roms: Chip8.ROMs.list_roms(),
-        fps: @fps,
+        last_cycle: nil,
         running: false
       )
 
@@ -49,9 +49,12 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("run", _value, socket) do
-    socket = assign(socket, :running, true)
+    socket =
+      socket
+      |> assign(:running, true)
+      |> assign(:last_cycle, System.system_time(:millisecond))
 
-    schedule_next_frame(socket)
+    schedule_next_cycle(socket)
 
     {:noreply, socket}
   end
@@ -90,18 +93,27 @@ defmodule Chip8Web.PageLive do
   end
 
   @impl true
-  def handle_info(:next_frame, socket) do
-    schedule_next_frame(socket)
+  def handle_info(:next_cycle, socket) do
+    schedule_next_cycle(socket)
+    now = System.system_time(:millisecond)
+    cycles = trunc((now - socket.assigns.last_cycle) / 5)
 
-    emulator = Chip8.Emulator.step(socket.assigns.emulator)
-    socket = assign(socket, :emulator, emulator)
+    emulator = Chip8.Emulator.handle_timers(socket.assigns.emulator)
+    emulator = Enum.reduce(1..cycles, emulator, fn _, acc ->
+      Chip8.Emulator.step(acc)
+    end)
+
+    socket =
+      socket
+      |> assign(:emulator, emulator)
+      |> assign(:last_cycle, now)
 
     {:noreply, socket}
   end
 
-  defp schedule_next_frame(socket) do
+  defp schedule_next_cycle(socket) do
     if socket.assigns.running do
-      Process.send_after(self(), :next_frame, trunc(1000 / socket.assigns.fps))
+      Process.send_after(self(), :next_cycle, 16)
     end
   end
 

@@ -106,12 +106,12 @@ pub fn execute_instruction(
       let tuple(stack, address) = stack.pop(emulator.stack)
       Emulator(..emulator, stack: stack, pc: address)
     }
-    instruction.JumpAbsolute(address) -> Emulator(..emulator, pc: address)
+    instruction.JumpAbsolute(address) -> Emulator(..emulator, pc: address - 2)
     instruction.CallSubroutine(
       address,
     ) -> Emulator(
       ..emulator,
-      pc: address,
+      pc: address - 2,
       stack: stack.push(emulator.stack, emulator.pc),
     )
     instruction.SkipNextIfEqualConstant(
@@ -452,8 +452,8 @@ pub fn step(emulator: Emulator) -> Emulator {
     Running -> {
       assert Ok(raw_instruction) = memory.read(emulator.memory, emulator.pc, 2)
       let instruction = instruction.decode_instruction(raw_instruction)
+      let emulator = execute_instruction(emulator, instruction)
       Emulator(..emulator, pc: emulator.pc + 2)
-      |> execute_instruction(instruction)
     }
   }
 }

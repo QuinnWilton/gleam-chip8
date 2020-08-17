@@ -4,10 +4,15 @@ defmodule Chip8.Emulator do
     from: "gen/src/chip8@emulator_Emulator.hrl"
 
   alias __MODULE__
+  alias Chip8.RegisterFile
 
   def init() do
     :chip8@emulator.init()
     |> from_record()
+  end
+
+  def registers(%Emulator{} = emulator) do
+    RegisterFile.from_record(emulator.registers)
   end
 
   def reset(%Emulator{} = emulator) do

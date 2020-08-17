@@ -118,6 +118,49 @@ body {
   background-color: #2e2767;
 }
 
+.registers {
+  display: grid;
+  grid-auto-columns: max-content auto 80px;
+  grid-auto-rows: auto;
+  gap: 16px 8px;
+  align-items: baseline;
+
+  color: #9c9c9c;
+}
+
+.registers > .label {
+  grid-column: 1;
+}
+
+.registers > .value {
+  grid-column: 2;
+}
+
+.registers > .changed {
+  color: white;
+}
+
+.stack {
+  display: grid;
+  grid-auto-columns: -webkit-max-content auto 80px;
+  grid-auto-columns: max-content auto 80px;
+  grid-template-rows: auto;
+  gap: 16px 8px;
+  align-items: baseline;
+
+  color: #9c9c9c;
+}
+
+.stack > .label:first-of-type {
+    background-color: #6153CC;
+    color: white;
+}
+
+.stack > .value:first-of-type {
+    background-color: #6153CC;
+    color: white;
+}
+
 .screen {
   border-top: 1px solid white;
   border-left: 1px solid white;

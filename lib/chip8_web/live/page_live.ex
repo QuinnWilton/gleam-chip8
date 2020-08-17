@@ -1,11 +1,16 @@
 defmodule Chip8Web.PageLive do
   use Chip8Web, :live_view
 
+  alias Chip8.{
+    Emulator,
+    RegisterFile
+  }
+
   @milliseconds_per_cycle 2
 
   @impl true
   def mount(_params, _session, socket) do
-    emulator = Chip8.Emulator.init()
+    emulator = Emulator.init()
 
     socket =
       assign(socket,
@@ -20,7 +25,7 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("reset", _value, socket) do
-    emulator = Chip8.Emulator.reset(socket.assigns.emulator)
+    emulator = Emulator.reset(socket.assigns.emulator)
 
     socket =
       socket
@@ -33,7 +38,7 @@ defmodule Chip8Web.PageLive do
   @impl true
   def handle_event("load_rom", %{"name" => rom_name}, socket) do
     {^rom_name, rom} = List.keyfind(socket.assigns.roms, rom_name, 0)
-    emulator = Chip8.Emulator.load_rom(socket.assigns.emulator, rom)
+    emulator = Emulator.load_rom(socket.assigns.emulator, rom)
     socket = assign(socket, :emulator, emulator)
 
     {:noreply, socket}
@@ -41,7 +46,7 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("step", _value, socket) do
-    emulator = Chip8.Emulator.step(socket.assigns.emulator)
+    emulator = Emulator.step(socket.assigns.emulator)
     socket = assign(socket, :emulator, emulator)
 
     {:noreply, socket}
@@ -70,7 +75,7 @@ defmodule Chip8Web.PageLive do
   def handle_event("key_up", %{"key" => key}, socket) do
     case decode_key(key) do
       {:ok, key} ->
-        emulator = Chip8.Emulator.handle_key_up(socket.assigns.emulator, key)
+        emulator = Emulator.handle_key_up(socket.assigns.emulator, key)
 
         {:noreply, assign(socket, :emulator, emulator)}
 
@@ -83,7 +88,7 @@ defmodule Chip8Web.PageLive do
   def handle_event("key_down", %{"key" => key}, socket) do
     case decode_key(key) do
       {:ok, key} ->
-        emulator = Chip8.Emulator.handle_key_down(socket.assigns.emulator, key)
+        emulator = Emulator.handle_key_down(socket.assigns.emulator, key)
 
         {:noreply, assign(socket, :emulator, emulator)}
 
@@ -96,11 +101,11 @@ defmodule Chip8Web.PageLive do
   def handle_info(:next_cycle, socket) do
     schedule_next_cycle(socket)
     now = System.system_time(:millisecond)
-    cycles = trunc((now - socket.assigns.last_cycle) / 5)
+    cycles = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_cycle)
 
-    emulator = Chip8.Emulator.handle_timers(socket.assigns.emulator)
+    emulator = Emulator.handle_timers(socket.assigns.emulator)
     emulator = Enum.reduce(1..cycles, emulator, fn _, acc ->
-      Chip8.Emulator.step(acc)
+      Emulator.step(acc)
     end)
 
     socket =
@@ -139,11 +144,25 @@ defmodule Chip8Web.PageLive do
     end
   end
 
-  defp disassemble_instructions(%Chip8.Emulator{} = emulator) do
-    Chip8.Emulator.disassemble_instructions(emulator, 30)
+  defp disassemble_instructions(%Emulator{} = emulator) do
+    Emulator.disassemble_instructions(emulator, 30)
   end
 
-  defp controls(%Chip8.Emulator{state: state}, running) do
+  defp get_register(%Emulator{} = emulator, register) when is_atom(register) do
+    emulator
+    |> Emulator.registers()
+    |> Map.fetch!(register)
+    |> (fn n -> "0x" <> Integer.to_string(n, 16) end).()
+  end
+
+  defp get_data_register(%Emulator{} = emulator, register) when is_atom(register) do
+    emulator
+    |> Emulator.registers()
+    |> RegisterFile.get_data_register(register)
+    |> (fn n -> "0x" <> Integer.to_string(n, 16) end).()
+  end
+
+  defp controls(%Emulator{state: state}, running) do
     case {state, running} do
       {:awaiting_rom, _} ->
         []

@@ -480,7 +480,11 @@ pub fn disassemble_instructions(
       let decoded = instruction.decode_instruction(raw)
       let disassembled = instruction.disassemble(decoded)
 
-      tuple(helpers.int_to_hex_string(address), disassembled, address == emulator.pc)
+      tuple(
+        helpers.int_to_hex_string(address),
+        disassembled,
+        address == emulator.pc,
+      )
     },
   )
 }

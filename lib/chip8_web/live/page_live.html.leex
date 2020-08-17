@@ -18,26 +18,74 @@
     </div>
   </div>
   <div class="window window-disassembler">
-      <h1 class="header">Disassembler</h1>
-      <div class="body">
-        <%= for {address, instruction, active} <- disassemble_instructions(@emulator) do %>
-          <%= if active do %>
-            <span class="active">
-              <span class="instruction">
-               <%= address %>: <%= instruction %>
-              </span>
-              <span class="cursor">&lt;</span>
+    <h1 class="header">Disassembler</h1>
+    <div class="body">
+      <%= for {address, instruction, active} <- disassemble_instructions(@emulator) do %>
+        <%= if active do %>
+          <span class="active">
+            <span class="instruction">
+              <%= address %>: <%= instruction %>
             </span>
-          <% else %>
-            <span><%= address %>: <%= instruction %></span>
-          <% end %>
+            <span class="cursor">&lt;</span>
+          </span>
+        <% else %>
+          <span><%= address %>: <%= instruction %></span>
         <% end %>
-      </div>
+      <% end %>
+    </div>
   </div>
-  <%# <div class="window window-memory">
-      <h1 class="header">Memory</h1>
-      <div class="body"></div>
-  </div> %>
+  <div class="window window-memory">
+    <h1 class="header">Memory</h1>
+    <div class="body">
+      <div class="registers">
+        <span class="label">PC:</span>
+        <span class="value">0x<%= Integer.to_string(@emulator.pc, 16) %></span>
+        <span class="label">I:</span>
+        <span class="value"><%= get_register(@emulator, :address_register) %></span>
+        <span class="label">DT:</span>
+        <span class="value"><%= get_register(@emulator, :delay_timer) %></span>
+        <span class="label">ST:</span>
+        <span class="value"><%= get_register(@emulator, :sound_timer) %></span>
+        <span class="label">V0:</span>
+        <span class="value"><%= get_data_register(@emulator, :v0) %></span>
+        <span class="label">V1:</span>
+        <span class="value"><%= get_data_register(@emulator, :v1) %></span>
+        <span class="label">V2:</span>
+        <span class="value"><%= get_data_register(@emulator, :v2) %></span>
+        <span class="label">V3:</span>
+        <span class="value"><%= get_data_register(@emulator, :v3) %></span>
+        <span class="label">V4:</span>
+        <span class="value"><%= get_data_register(@emulator, :v4) %></span>
+        <span class="label">V5:</span>
+        <span class="value"><%= get_data_register(@emulator, :v5) %></span>
+        <span class="label">V6:</span>
+        <span class="value"><%= get_data_register(@emulator, :v6) %></span>
+        <span class="label">V7:</span>
+        <span class="value"><%= get_data_register(@emulator, :v7) %></span>
+        <span class="label">V8:</span>
+        <span class="value"><%= get_data_register(@emulator, :v8) %></span>
+        <span class="label">V9:</span>
+        <span class="value"><%= get_data_register(@emulator, :v9) %></span>
+        <span class="label">VA:</span>
+        <span class="value"><%= get_data_register(@emulator, :va) %></span>
+        <span class="label">VB:</span>
+        <span class="value"><%= get_data_register(@emulator, :vb) %></span>
+        <span class="label">VC:</span>
+        <span class="value"><%= get_data_register(@emulator, :vc) %></span>
+        <span class="label">VD:</span>
+        <span class="value"><%= get_data_register(@emulator, :vd) %></span>
+        <span class="label">VE:</span>
+        <span class="value"><%= get_data_register(@emulator, :ve) %></span>
+        <span class="label">VF:</span>
+        <span class="value"><%= get_data_register(@emulator, :vf) %></span>
+      </div>
+
+      <%# <div class="stack">
+        <span class="label">0x45:</span>
+        <span class="value">whatever data goes here</span>
+      </div> %>
+    </div>
+  </div>
   <div class="window window-controls">
     <h1 class="header">Controls</h1>
     <div class="body">

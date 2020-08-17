@@ -55,9 +55,9 @@ pub type Instruction {
 
 pub fn decode_instruction(instruction: BitString) -> Instruction {
   case instruction {
-    <<0:4, nnn:12>> -> ExecuteSystemCall(nnn)
     <<0:4, 0:4, 14:4, 0:4>> -> ClearScreen
     <<0:4, 0:4, 14:4, 14:4>> -> ReturnFromSubroutine
+    <<0:4, nnn:12>> -> ExecuteSystemCall(nnn)
     <<1:4, nnn:12>> -> JumpAbsolute(nnn)
     <<2:4, nnn:12>> -> CallSubroutine(nnn)
     <<

@@ -82,10 +82,13 @@
         <span class="value"><%= get_data_register(@emulator, :vf) %></span>
       </div>
 
-      <%# <div class="stack">
-        <span class="label">0x45:</span>
-        <span class="value">whatever data goes here</span>
-      </div> %>
+      <div class="stack">
+        <span class="active">
+          <span class="frame">0x32: whatever goes here</span>
+          <span class="cursor">&lt;</span>
+        </span>
+        <span>0x40: and here too</span>
+      </div>
     </div>
   </div>
   <div class="window window-controls">

@@ -3,7 +3,8 @@ defmodule Chip8Web.PageLive do
 
   alias Chip8.{
     Emulator,
-    RegisterFile
+    RegisterFile,
+    Stack,
   }
 
   @milliseconds_per_timer 16
@@ -158,14 +159,28 @@ defmodule Chip8Web.PageLive do
     emulator
     |> Emulator.registers()
     |> Map.fetch!(register)
-    |> (fn n -> "0x" <> Integer.to_string(n, 16) end).()
+    |> to_hex_string()
   end
 
   defp get_data_register(%Emulator{} = emulator, register) when is_atom(register) do
     emulator
     |> Emulator.registers()
     |> RegisterFile.get_data_register(register)
-    |> (fn n -> "0x" <> Integer.to_string(n, 16) end).()
+    |> to_hex_string()
+  end
+
+  defp list_stack_addresses(%Emulator{} = emulator) do
+    stack = Emulator.stack(emulator)
+
+    stack
+    |> Stack.list_stack_addresses()
+    |> Enum.map(fn {address, value} ->
+      {to_hex_string(address), to_hex_string(value), address == stack.sp}
+    end)
+  end
+
+  defp to_hex_string(n) when is_integer(n) do
+    "0x" <> Integer.to_string(n, 16)
   end
 
   defp controls(%Emulator{state: state}, running) do

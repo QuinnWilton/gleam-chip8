@@ -83,11 +83,16 @@
       </div>
 
       <div class="stack">
-        <span class="active">
-          <span class="frame">0x32: whatever goes here</span>
-          <span class="cursor">&lt;</span>
-        </span>
-        <span>0x40: and here too</span>
+        <%= for {address, value, active} <- list_stack_addresses(@emulator) do %>
+          <%= if active do %>
+            <span class="active">
+              <span class="frame"><%= address %>: <%= value %></span>
+              <span class="cursor">&lt;</span>
+            </span>
+          <% else %>
+            <span><%= address %>: <%= value %></span>
+          <% end %>
+        <% end %>
       </div>
     </div>
   </div>

@@ -34,7 +34,7 @@ pub type Emulator {
     registers: registers.RegisterFile,
     keyboard: keyboard.Keyboard,
     pc: Int,
-    stack: stack.Stack(Int),
+    stack: stack.Stack,
     memory: memory.Memory,
     screen: screen.Screen,
   )

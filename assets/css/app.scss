@@ -62,16 +62,6 @@ body {
   background-color: #2e2767;
 }
 
-.window-memory {
-  grid-area: memory;
-  border-color: #2e2767;
-}
-
-.window-memory > .header {
-  color: #6153CC;
-  background-color: #2e2767;
-}
-
 .window-controls {
   grid-area: controls;
   border-color: #EE4266;
@@ -101,9 +91,10 @@ body {
 .window-disassembler > .body > span.active {
   display: flex;
   justify-content: space-between;
-  background-color: #6153CC;
+  background-color: #2e2767; 
   color: white;
   padding: 0;
+  box-shadow: 0px 0px 0px 2px inset #6153cc;
 }
 
 .window-disassembler > .body > span.active > .instruction {
@@ -115,14 +106,31 @@ body {
   font-weight: bold;
   color: #a89df7;
   padding: 2px 8px;
+  background-color: #6153cc;
+}
+
+.window-memory {
+  grid-area: memory;
+  border-color: #2e2767;
+}
+
+.window-memory > .header {
+  color: #6153CC;
   background-color: #2e2767;
+}
+
+.window-memory > .body {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px 0px;
 }
 
 .registers {
   display: grid;
   grid-auto-columns: max-content auto 80px;
   grid-auto-rows: auto;
-  gap: 16px 8px;
+  gap: 4px 8px;
   align-items: baseline;
 
   color: #9c9c9c;
@@ -141,24 +149,38 @@ body {
 }
 
 .stack {
-  display: grid;
-  grid-auto-columns: -webkit-max-content auto 80px;
-  grid-auto-columns: max-content auto 80px;
-  grid-template-rows: auto;
-  gap: 16px 8px;
-  align-items: baseline;
-
+  display: flex;
+  flex-direction: column;
   color: #9c9c9c;
 }
 
-.stack > .label:first-of-type {
-    background-color: #6153CC;
-    color: white;
+.stack > span {
+  padding: 2px 8px;
 }
 
-.stack > .value:first-of-type {
-    background-color: #6153CC;
-    color: white;
+.stack > span:nth-child(even) {
+  background-color: #232323;
+}
+
+.stack > span.active {
+  display: flex;
+  justify-content: space-between;
+  background-color: #2e2767; 
+  color: white;
+  padding: 0;
+  box-shadow: 0px 0px 0px 2px inset #6153cc;
+}
+
+.stack > span.active > .frame {
+  padding: 2px 8px;
+}
+
+.stack > span.active > .cursor {
+  height: 100%;
+  font-weight: bold;
+  color: #a89df7;
+  padding: 2px 8px;
+  background-color: #6153cc;
 }
 
 .screen {

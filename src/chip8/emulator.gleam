@@ -307,17 +307,21 @@ pub fn execute_instruction(
       }
       Emulator(..emulator, screen: screen, registers: registers)
     }
-    instruction.SkipNextIfKeyPressed(
-      key,
-    ) -> case keyboard.get_key_state(emulator.keyboard, key) {
-      keyboard.KeyUp -> emulator
-      keyboard.KeyDown -> Emulator(..emulator, pc: emulator.pc + 2)
+    instruction.SkipNextIfKeyPressed(vx) -> {
+      let value = registers.get_data_register(emulator.registers, vx)
+      let key = keyboard.to_key_code(value)
+      case keyboard.get_key_state(emulator.keyboard, key) {
+        keyboard.KeyUp -> emulator
+        keyboard.KeyDown -> Emulator(..emulator, pc: emulator.pc + 2)
+      }
     }
-    instruction.SkipNextIfKeyNotPressed(
-      key,
-    ) -> case keyboard.get_key_state(emulator.keyboard, key) {
-      keyboard.KeyUp -> Emulator(..emulator, pc: emulator.pc + 2)
-      keyboard.KeyDown -> emulator
+    instruction.SkipNextIfKeyNotPressed(vx) -> {
+      let value = registers.get_data_register(emulator.registers, vx)
+      let key = keyboard.to_key_code(value)
+      case keyboard.get_key_state(emulator.keyboard, key) {
+        keyboard.KeyUp -> Emulator(..emulator, pc: emulator.pc + 2)
+        keyboard.KeyDown -> emulator
+      }
     }
     instruction.SetRegisterToDelayTimer(
       vx,

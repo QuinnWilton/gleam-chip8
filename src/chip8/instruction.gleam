@@ -48,8 +48,8 @@ pub type Instruction {
     vy: registers.DataRegister,
     length: Int,
   )
-  SkipNextIfKeyPressed(key: keyboard.KeyCode)
-  SkipNextIfKeyNotPressed(key: keyboard.KeyCode)
+  SkipNextIfKeyPressed(vx: registers.DataRegister)
+  SkipNextIfKeyNotPressed(vx: registers.DataRegister)
   Unknown(raw: BitString)
 }
 
@@ -188,8 +188,18 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
       registers.to_data_register(y),
       n,
     )
-    <<14:4, x:4, 9:4, 14:4>> -> SkipNextIfKeyPressed(keyboard.to_key_code(x))
-    <<14:4, x:4, 10:4, 1:4>> -> SkipNextIfKeyNotPressed(keyboard.to_key_code(x))
+    <<
+      14:4,
+      x:4,
+      9:4,
+      14:4,
+    >> -> SkipNextIfKeyPressed(registers.to_data_register(x))
+    <<
+      14:4,
+      x:4,
+      10:4,
+      1:4,
+    >> -> SkipNextIfKeyNotPressed(registers.to_data_register(x))
     <<
       15:4,
       x:4,
@@ -427,11 +437,11 @@ pub fn disassemble(instruction: Instruction) -> String {
       with: " ",
     )
     SkipNextIfKeyPressed(
-      key,
-    ) -> string.join(["SKP", keyboard.key_code_to_string(key)], with: " ")
+      vx,
+    ) -> string.join(["SKP", registers.data_register_to_string(vx)], with: " ")
     SkipNextIfKeyNotPressed(
-      key,
-    ) -> string.join(["SKNP", keyboard.key_code_to_string(key)], with: " ")
+      vx,
+    ) -> string.join(["SKNP", registers.data_register_to_string(vx)], with: " ")
     SetRegisterToDelayTimer(
       vx,
     ) -> string.join(

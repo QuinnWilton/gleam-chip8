@@ -6,6 +6,7 @@ defmodule Chip8Web.PageLive do
     RegisterFile
   }
 
+  @milliseconds_per_timer 16
   @milliseconds_per_cycle 2
 
   @impl true
@@ -101,9 +102,14 @@ defmodule Chip8Web.PageLive do
   def handle_info(:next_cycle, socket) do
     schedule_next_cycle(socket)
     now = System.system_time(:millisecond)
+
+    timers = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_timer)
     cycles = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_cycle)
 
-    emulator = Emulator.handle_timers(socket.assigns.emulator)
+    emulator = Enum.reduce(1..timers, socket.assigns.emulator, fn _, acc ->
+      Emulator.handle_timers(acc)
+    end)
+
     emulator = Enum.reduce(1..cycles, emulator, fn _, acc ->
       Emulator.step(acc)
     end)
@@ -118,7 +124,7 @@ defmodule Chip8Web.PageLive do
 
   defp schedule_next_cycle(socket) do
     if socket.assigns.running do
-      Process.send_after(self(), :next_cycle, 16)
+      Process.send_after(self(), :next_cycle, 64)
     end
   end
 

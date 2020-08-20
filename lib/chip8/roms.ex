@@ -12,4 +12,11 @@ defmodule Chip8.ROMs do
   def list_roms do
     @roms
   end
+
+  def get_rom(name) when is_binary(name) do
+    roms = list_roms()
+    {^name, rom} = List.keyfind(roms, name, 0)
+
+    rom
+  end
 end

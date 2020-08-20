@@ -40,7 +40,7 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("load_rom", %{"name" => rom_name}, socket) do
-    {^rom_name, rom} = List.keyfind(socket.assigns.roms, rom_name, 0)
+    rom = Chip8.ROMs.get_rom(rom_name)
     emulator = Emulator.load_rom(socket.assigns.emulator, rom)
     socket = assign(socket, :emulator, emulator)
 

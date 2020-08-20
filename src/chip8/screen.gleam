@@ -16,8 +16,29 @@ pub fn new(width: Int, height: Int) -> Screen {
   )
 }
 
-pub fn to_list(screen: Screen) -> List(List(Bool)) {
-  screen.contents
+pub fn to_list(screen: Screen) -> List(tuple(Int, Int, Bool)) {
+  let tuple(result, _) =
+    list.fold(
+      screen.contents,
+      tuple([], 0),
+      fn(row, acc) {
+        let tuple(rows, y) = acc
+        let tuple(result, _) =
+          list.fold(
+            row,
+            tuple(rows, 0),
+            fn(pixel, acc) {
+              let tuple(pixels, x) = acc
+
+              tuple([tuple(x, y, pixel), ..pixels], x + 1)
+            },
+          )
+
+        tuple(result, y + 1)
+      },
+    )
+
+  result
 }
 
 pub fn get_pixel(screen: Screen, x: Int, y: Int) -> Bool {

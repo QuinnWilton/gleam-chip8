@@ -184,27 +184,16 @@ body {
 }
 
 .screen {
+  width: 640px; height: 320px;
+
   border-top: 1px solid white;
   border-left: 1px solid white;
   border-right: 1px solid #4392F1;
   border-bottom: 1px solid #4392F1;
 }
 
-.screen-row { display: flex }
-
-.screen-pixel {
-  width: 10px;
-  height: 10px;
-}
-
-.screen-pixel-on {
-  background-color: #EE4266;
-  transition: background 0s; 
-}
-
-.screen-pixel-off {
-  background-color: black;
-  transition: background 0.25s;
+.screen > rect {
+  fill: #EE4266;
 }
 
 :focus {

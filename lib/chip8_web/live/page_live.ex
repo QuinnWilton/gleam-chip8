@@ -7,9 +7,9 @@ defmodule Chip8Web.PageLive do
     Stack,
   }
 
-  @milliseconds_per_frame 32
+  @milliseconds_per_frame 16
   @milliseconds_per_timer 16
-  @milliseconds_per_cycle 2
+  @milliseconds_per_cycle 1
 
   @impl true
   def mount(_params, _session, socket) do

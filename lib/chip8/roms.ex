@@ -10,12 +10,11 @@ defmodule Chip8.ROMs do
   @roms Enum.sort_by(roms, fn {name, _contents} -> name end)
 
   def list_roms do
-    @roms
+    Enum.map(@roms, fn {name, _} -> name end)
   end
 
   def get_rom(name) when is_binary(name) do
-    roms = list_roms()
-    {^name, rom} = List.keyfind(roms, name, 0)
+    {^name, rom} = List.keyfind(@roms, name, 0)
 
     rom
   end

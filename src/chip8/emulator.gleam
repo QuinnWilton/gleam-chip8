@@ -471,12 +471,13 @@ pub fn step(emulator: Emulator) -> Emulator {
 }
 
 pub fn handle_timers(emulator: Emulator) -> Emulator {
+  let screen = screen.decay(emulator.screen)
   let registers =
     emulator.registers
     |> registers.decrement_delay_timer()
     |> registers.decrement_sound_timer()
 
-  Emulator(..emulator, registers: registers)
+  Emulator(..emulator, registers: registers, screen: screen)
 }
 
 pub fn disassemble_instructions(

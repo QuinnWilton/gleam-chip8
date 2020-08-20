@@ -5,9 +5,9 @@
     <h1 class="header">Screen</h1>
     <div class="body">
       <svg class="screen" viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-        <%= for {x, y, active} <- :chip8@screen.to_list(@emulator.screen) do %>
-          <%= if active do %>
-           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" />
+        <%= for {x, y, opacity} <- :chip8@screen.to_list(@emulator.screen) do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
           <% end %>
         <% end %>
       </svg>

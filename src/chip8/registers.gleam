@@ -30,7 +30,8 @@ pub opaque type RegisterFile {
 }
 
 pub fn new() -> RegisterFile {
-  let data_registers = map.new()
+  let data_registers =
+    map.new()
     |> map.insert(V0, 0)
     |> map.insert(V1, 0)
     |> map.insert(V2, 0)
@@ -58,11 +59,13 @@ pub fn new() -> RegisterFile {
 
 fn encode_8_bit(value: Int) -> Int {
   let <<x>> = <<value:size(8)>>
+
   x
 }
 
 fn encode_16_bit(value: Int) -> Int {
   let <<x, y>> = <<value:size(16)>>
+
   x * 256 + y
 }
 
@@ -70,10 +73,7 @@ pub fn get_address_register(registers: RegisterFile) -> Int {
   registers.address_register
 }
 
-pub fn set_address_register(
-  registers: RegisterFile,
-  value: Int,
-) -> RegisterFile {
+pub fn set_address_register(registers: RegisterFile, value: Int) -> RegisterFile {
   RegisterFile(..registers, address_register: encode_16_bit(value))
 }
 
@@ -93,11 +93,9 @@ pub fn set_sound_timer(registers: RegisterFile, value: Int) -> RegisterFile {
   RegisterFile(..registers, sound_timer: encode_8_bit(value))
 }
 
-pub fn get_data_register(
-  registers: RegisterFile,
-  register: DataRegister,
-) -> Int {
+pub fn get_data_register(registers: RegisterFile, register: DataRegister) -> Int {
   assert Ok(value) = map.get(registers.data_registers, register)
+
   value
 }
 
@@ -106,11 +104,9 @@ pub fn set_data_register(
   register: DataRegister,
   value: Int,
 ) -> RegisterFile {
-  let data_registers = map.insert(
-    registers.data_registers,
-    register,
-    encode_8_bit(value),
-  )
+  let data_registers =
+    map.insert(registers.data_registers, register, encode_8_bit(value))
+
   RegisterFile(..registers, data_registers: data_registers)
 }
 

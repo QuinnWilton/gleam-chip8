@@ -11,15 +11,15 @@ pub fn new(size: Int) -> Memory {
 
 pub fn put(memory: Memory, position: Int, data: BitString) -> Memory {
   assert Ok(left) = bit_string.part(memory.data, 0, position)
-  assert Ok(
-    right,
-  ) = bit_string.part(
-    memory.data,
-    position + bit_string.byte_size(data),
-    bit_string.byte_size(memory.data) - position - bit_string.byte_size(data),
-  )
+  assert Ok(right) =
+    bit_string.part(
+      memory.data,
+      position + bit_string.byte_size(data),
+      bit_string.byte_size(memory.data) - position - bit_string.byte_size(data),
+    )
 
-  let data = left
+  let data =
+    left
     |> bit_string.append(data)
     |> bit_string.append(right)
 
@@ -32,5 +32,6 @@ pub fn read(
   length: Int,
 ) -> Result(BitString, Nil) {
   let position = position % bit_string.byte_size(memory.data)
+
   bit_string.part(memory.data, position, length)
 }

@@ -29,7 +29,8 @@ pub opaque type Keyboard {
 }
 
 pub fn new() -> Keyboard {
-  let state = map.new()
+  let state =
+    map.new()
     |> map.insert(K0, KeyUp)
     |> map.insert(K1, KeyUp)
     |> map.insert(K2, KeyUp)

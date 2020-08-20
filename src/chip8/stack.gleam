@@ -24,12 +24,10 @@ pub fn pop(stack: Stack) -> tuple(Stack, Int) {
 
 pub fn to_list(stack: Stack) -> List(tuple(Int, Int)) {
   list.range(0, 16)
-  |> list.map(
-    fn(n) {
-      let address = n * 2
-      assert Ok(<<value:size(16)>>) = memory.read(stack.contents, address, 2)
+  |> list.map(fn(n) {
+    let address = n * 2
+    assert Ok(<<value:size(16)>>) = memory.read(stack.contents, address, 2)
 
-      tuple(address, value)
-    },
-  )
+    tuple(address, value)
+  })
 }

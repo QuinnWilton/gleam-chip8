@@ -199,10 +199,12 @@ body {
 
 .screen-pixel-on {
   background-color: #EE4266;
+  transition: background 0s; 
 }
 
 .screen-pixel-off {
   background-color: black;
+  transition: background 0.25s;
 }
 
 :focus {

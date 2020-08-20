@@ -7,6 +7,7 @@ defmodule Chip8Web.PageLive do
     Stack,
   }
 
+  @milliseconds_per_frame 32
   @milliseconds_per_timer 16
   @milliseconds_per_cycle 2
 
@@ -125,7 +126,7 @@ defmodule Chip8Web.PageLive do
 
   defp schedule_next_cycle(socket) do
     if socket.assigns.running do
-      Process.send_after(self(), :next_cycle, 64)
+      Process.send_after(self(), :next_cycle, @milliseconds_per_frame)
     end
   end
 

@@ -4,7 +4,7 @@
   <div class="window window-screen">
     <h1 class="header">Screen</h1>
     <div class="body">
-      <svg class="screen" viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
+      <svg id="screen" class="screen" viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg" phx-hook="Screen">
         <%= for {x, y, opacity} <- :chip8@screen.to_list(@emulator.screen) do %>
           <%= if opacity > 0 do %>
            <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>

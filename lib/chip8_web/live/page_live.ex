@@ -49,6 +49,7 @@ defmodule Chip8Web.PageLive do
       socket
       |> assign(:emulator, emulator)
       |> assign(:rom, rom)
+      |> push_event("screen_init", %{})
 
     {:noreply, socket}
   end

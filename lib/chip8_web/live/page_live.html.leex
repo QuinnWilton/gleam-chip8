@@ -98,11 +98,19 @@
       <% end %>
 
       <%= if @emulator.state == :awaiting_rom do %>
-        <%= for rom_name <- @roms do %>
-          <button phx-click="load_rom" phx-value-name="<%= rom_name %>" class="button ghost primary">
-            <%= rom_name %>
-          </button>
-        <% end %>
+        <div class="rom-list">
+          <%= for rom <- @roms do %>
+            <button phx-click="load_rom" phx-value-name="<%= rom.name %>" class="button ghost primary">
+              <%= rom.name %>
+            </button>
+          <% end %>
+        </div>
+      <% end %>
+
+      <%= if @rom do %>
+        <div class="rom-details">
+          <p><%= @rom.description %></p>
+        </div>
       <% end %>
     </div>
   </div>

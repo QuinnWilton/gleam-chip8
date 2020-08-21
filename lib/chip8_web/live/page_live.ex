@@ -4,7 +4,8 @@ defmodule Chip8Web.PageLive do
   alias Chip8.{
     Emulator,
     RegisterFile,
-    Stack,
+    ROMs,
+    Stack
   }
 
   @milliseconds_per_frame 16
@@ -18,7 +19,8 @@ defmodule Chip8Web.PageLive do
     socket =
       assign(socket,
         emulator: emulator,
-        roms: Chip8.ROMs.list_roms(),
+        roms: ROMs.list_roms(),
+        rom: nil,
         last_cycle: nil,
         running: false
       )
@@ -40,9 +42,13 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("load_rom", %{"name" => rom_name}, socket) do
-    rom = Chip8.ROMs.get_rom(rom_name)
-    emulator = Emulator.load_rom(socket.assigns.emulator, rom)
-    socket = assign(socket, :emulator, emulator)
+    rom = ROMs.get_rom(rom_name)
+    emulator = Emulator.load_rom(socket.assigns.emulator, rom.data)
+
+    socket =
+      socket
+      |> assign(:emulator, emulator)
+      |> assign(:rom, rom)
 
     {:noreply, socket}
   end
@@ -76,27 +82,35 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("key_up", %{"key" => key}, socket) do
-    case decode_key(key) do
-      {:ok, key} ->
-        emulator = Emulator.handle_key_up(socket.assigns.emulator, key)
+    if socket.assigns.running do
+      case ROMs.translate_keybinds(socket.assigns.rom, key) do
+        nil ->
+          {:noreply, socket}
 
-        {:noreply, assign(socket, :emulator, emulator)}
+        key ->
+          emulator = Emulator.handle_key_up(socket.assigns.emulator, key)
 
-      :error ->
-        {:noreply, socket}
+          {:noreply, assign(socket, :emulator, emulator)}
+      end
+    else
+      {:noreply, socket}
     end
   end
 
   @impl true
   def handle_event("key_down", %{"key" => key}, socket) do
-    case decode_key(key) do
-      {:ok, key} ->
-        emulator = Emulator.handle_key_down(socket.assigns.emulator, key)
+    if socket.assigns.running do
+      case ROMs.translate_keybinds(socket.assigns.rom, key) do
+        nil ->
+          {:noreply, socket}
 
-        {:noreply, assign(socket, :emulator, emulator)}
+        key ->
+          emulator = Emulator.handle_key_down(socket.assigns.emulator, key)
 
-      :error ->
-        {:noreply, socket}
+          {:noreply, assign(socket, :emulator, emulator)}
+      end
+    else
+      {:noreply, socket}
     end
   end
 
@@ -108,13 +122,15 @@ defmodule Chip8Web.PageLive do
     timers = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_timer)
     cycles = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_cycle)
 
-    emulator = Enum.reduce(1..timers, socket.assigns.emulator, fn _, acc ->
-      Emulator.handle_timers(acc)
-    end)
+    emulator =
+      Enum.reduce(1..timers, socket.assigns.emulator, fn _, acc ->
+        Emulator.handle_timers(acc)
+      end)
 
-    emulator = Enum.reduce(1..cycles, emulator, fn _, acc ->
-      Emulator.step(acc)
-    end)
+    emulator =
+      Enum.reduce(1..cycles, emulator, fn _, acc ->
+        Emulator.step(acc)
+      end)
 
     socket =
       socket
@@ -127,28 +143,6 @@ defmodule Chip8Web.PageLive do
   defp schedule_next_cycle(socket) do
     if socket.assigns.running do
       Process.send_after(self(), :next_cycle, @milliseconds_per_frame)
-    end
-  end
-
-  defp decode_key(key) do
-    case key do
-      "1" -> {:ok, :k0}
-      "x" -> {:ok, :k1}
-      "2" -> {:ok, :k2}
-      "3" -> {:ok, :k3}
-      "q" -> {:ok, :k4}
-      "w" -> {:ok, :k5}
-      "e" -> {:ok, :k6}
-      "a" -> {:ok, :k7}
-      "s" -> {:ok, :k8}
-      "d" -> {:ok, :k9}
-      "z" -> {:ok, :ka}
-      "c" -> {:ok, :kb}
-      "4" -> {:ok, :kc}
-      "r" -> {:ok, :kd}
-      "f" -> {:ok, :ke}
-      "v" -> {:ok, :kf}
-      _ -> :error
     end
   end
 

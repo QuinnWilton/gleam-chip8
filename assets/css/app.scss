@@ -74,6 +74,16 @@ body {
   padding: 4px;
 }
 
+.window-controls .rom-list {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 8px;
+}
+
+.window-controls .rom-details {
+  color: #9c9c9c;
+}
+
 .window-disassembler > .body {
   display: flex;
   flex-direction: column;

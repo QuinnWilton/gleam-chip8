@@ -5,7 +5,162 @@
     <h1 class="header">Screen</h1>
     <div class="body">
       <svg class="screen" viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
-        <%= for {x, y, opacity} <- :chip8@screen.to_list(@emulator.screen) do %>
+        <%= for {x, y, opacity} <- @row0 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row1 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row2 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row3 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row4 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row5 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row6 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row7 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row8 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row9 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row10 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row11 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row12 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row13 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row14 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row15 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row16 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row17 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row18 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row19 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row20 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row21 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row22 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row23 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row24 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row25 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row26 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row27 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row28 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row29 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row30 do %>
+          <%= if opacity > 0 do %>
+           <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
+          <% end %>
+        <% end %>
+        <%= for {x, y, opacity} <- @row31 do %>
           <%= if opacity > 0 do %>
            <rect x="<%= x %>" y="<%= y %>" width="1" height="1" opacity="<%= opacity %>"/>
           <% end %>
@@ -16,7 +171,7 @@
   <div class="window window-disassembler">
     <h1 class="header">Disassembler</h1>
     <div class="body">
-      <%= for {address, instruction, active} <- disassemble_instructions(@emulator) do %>
+      <%= for {address, instruction, active} <- @instructions do %>
         <%= if active do %>
           <span class="active">
             <span class="instruction">
@@ -77,7 +232,7 @@
       </div>
 
       <div class="stack">
-        <%= for {address, value, active} <- list_stack_addresses(@emulator) do %>
+        <%= for {address, value, active} <- @stack_addresses do %>
           <%= if active do %>
             <span class="active">
               <span class="frame"><%= address %>: <%= value %></span>

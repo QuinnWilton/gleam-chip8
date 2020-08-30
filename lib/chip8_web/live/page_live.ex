@@ -36,6 +36,7 @@ defmodule Chip8Web.PageLive do
       socket
       |> assign(:emulator, emulator)
       |> assign(:running, false)
+      |> push_event("disable_soundcard", %{})
 
     {:noreply, socket}
   end
@@ -49,15 +50,19 @@ defmodule Chip8Web.PageLive do
       socket
       |> assign(:emulator, emulator)
       |> assign(:rom, rom)
-      |> push_event("screen_init", %{})
+      |> push_event("initialize_soundcard", %{})
 
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("step", _value, socket) do
-    emulator = Emulator.step(socket.assigns.emulator)
-    socket = assign(socket, :emulator, emulator)
+    {emulator, events} = Emulator.step(socket.assigns.emulator)
+
+    socket =
+      socket
+      |> assign(:emulator, emulator)
+      |> handle_events(events)
 
     {:noreply, socket}
   end
@@ -123,20 +128,25 @@ defmodule Chip8Web.PageLive do
     timers = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_timer)
     cycles = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_cycle)
 
-    emulator =
-      Enum.reduce(1..timers, socket.assigns.emulator, fn _, acc ->
-        Emulator.handle_timers(acc)
+    {emulator, events} =
+      Enum.reduce(1..timers, {socket.assigns.emulator, []}, fn _, {acc_emulator, acc_events} ->
+        {emulator, events} = Emulator.handle_timers(acc_emulator)
+
+        {emulator, acc_events ++ events}
       end)
 
-    emulator =
-      Enum.reduce(1..cycles, emulator, fn _, acc ->
-        Emulator.step(acc)
+    {emulator, events} =
+      Enum.reduce(1..cycles, {emulator, events}, fn _, {acc_emulator, acc_events} ->
+        {emulator, events} = Emulator.step(acc_emulator)
+
+        {emulator, acc_events ++ events}
       end)
 
     socket =
       socket
       |> assign(:emulator, emulator)
       |> assign(:last_cycle, now)
+      |> handle_events(events)
 
     {:noreply, socket}
   end
@@ -145,6 +155,15 @@ defmodule Chip8Web.PageLive do
     if socket.assigns.running do
       Process.send_after(self(), :next_cycle, @milliseconds_per_frame)
     end
+  end
+
+  defp handle_events(socket, events) do
+    Enum.reduce(events, socket, fn event, socket ->
+      case event do
+        :sound_on -> push_event(socket, "enable_soundcard", %{})
+        :sound_off -> push_event(socket, "disable_soundcard", %{})
+      end
+    end)
   end
 
   defp disassemble_instructions(%Emulator{} = emulator) do

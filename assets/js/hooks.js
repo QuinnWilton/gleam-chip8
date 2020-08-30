@@ -23,15 +23,14 @@ const createAudio = () => {
 
 Hooks.Screen = {
     mounted() {
-        this.handleEvent("screen_init", () => {
+        this.handleEvent("initialize_soundcard", () => {
             this.synth = this.synth || createAudio();
         });
-        this.handleEvent("screen_soundcard_emit", ({value}) => {
-            if (value) {
-                this.synth?.on();
-            } else {
-                this.synth?.off();
-            }
+        this.handleEvent("enable_soundcard", () => {
+            this.synth?.on();
+        });
+        this.handleEvent("disable_soundcard", () => {
+            this.synth?.off();
         });
     },
     beforeDestroy() {

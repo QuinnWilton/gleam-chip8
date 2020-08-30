@@ -25,6 +25,11 @@ pub type State {
   AwaitingInput(vx: registers.DataRegister)
 }
 
+pub type Event {
+  SoundOn
+  SoundOff
+}
+
 pub type ROM =
   BitString
 
@@ -455,29 +460,46 @@ pub fn execute_instruction(
   }
 }
 
-pub fn step(emulator: Emulator) -> Emulator {
+pub fn step(emulator: Emulator) -> tuple(Emulator, List(Event)) {
   case emulator.state {
-    AwaitingROM -> emulator
+    AwaitingROM -> tuple(emulator, [])
 
-    AwaitingInput(_) -> emulator
+    AwaitingInput(_) -> tuple(emulator, [])
 
     Running -> {
       assert Ok(raw_instruction) = memory.read(emulator.memory, emulator.pc, 2)
       let instruction = instruction.decode_instruction(raw_instruction)
-      let emulator = execute_instruction(emulator, instruction)
-      Emulator(..emulator, pc: emulator.pc + 2)
+      let new_emulator = execute_instruction(emulator, instruction)
+      let new_emulator = Emulator(..new_emulator, pc: new_emulator.pc + 2)
+      let old_sound_timer = registers.get_sound_timer(emulator.registers)
+      let new_sound_timer = registers.get_sound_timer(new_emulator.registers)
+      let events = case tuple(old_sound_timer, new_sound_timer) {
+        tuple(0, x) if x != 0 -> [SoundOn]
+        _ -> []
+      }
+      tuple(new_emulator, events)
     }
   }
 }
 
-pub fn handle_timers(emulator: Emulator) -> Emulator {
-  let screen = screen.decay(emulator.screen)
-  let registers =
+pub fn handle_timers(emulator: Emulator) -> tuple(Emulator, List(Event)) {
+  let new_screen = screen.decay(emulator.screen)
+  let new_registers =
     emulator.registers
     |> registers.decrement_delay_timer()
     |> registers.decrement_sound_timer()
 
-  Emulator(..emulator, registers: registers, screen: screen)
+  let old_sound_timer = registers.get_sound_timer(emulator.registers)
+  let new_sound_timer = registers.get_sound_timer(new_registers)
+  let events = case tuple(old_sound_timer, new_sound_timer) {
+    tuple(x, 0) if x != 0 -> [SoundOff]
+    _ -> []
+  }
+
+  tuple(
+    Emulator(..emulator, registers: new_registers, screen: new_screen),
+    events,
+  )
 }
 
 pub fn disassemble_instructions(

@@ -1,4 +1,4 @@
-gleam ref:main
+gleam 0.11.0
 rust 1.45.2
 erlang 23.0.1
 elixir 1.10.4-otp-23

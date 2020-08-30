@@ -36,9 +36,9 @@ defmodule Chip8.Emulator do
   end
 
   def step(%Emulator{} = emulator) do
-    {emulator, events} = :chip8@emulator.step(to_record(emulator))
+    {emulator, commands} = :chip8@emulator.step(to_record(emulator))
 
-    {from_record(emulator), events}
+    {from_record(emulator), commands}
   end
 
   def handle_key_down(%Emulator{} = emulator, key) when is_atom(key) do
@@ -54,9 +54,9 @@ defmodule Chip8.Emulator do
   end
 
   def handle_timers(%Emulator{} = emulator) do
-    {emulator, events} = :chip8@emulator.handle_timers(to_record(emulator))
+    {emulator, commands} = :chip8@emulator.handle_timers(to_record(emulator))
 
-    {from_record(emulator), events}
+    {from_record(emulator), commands}
   end
 
   def disassemble_instructions(%Emulator{} = emulator, length) when is_integer(length) do

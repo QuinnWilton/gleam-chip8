@@ -25,7 +25,7 @@ pub type State {
   AwaitingInput(vx: registers.DataRegister)
 }
 
-pub type Event {
+pub type Command {
   SoundOn
   SoundOff
 }
@@ -460,7 +460,7 @@ pub fn execute_instruction(
   }
 }
 
-pub fn step(emulator: Emulator) -> tuple(Emulator, List(Event)) {
+pub fn step(emulator: Emulator) -> tuple(Emulator, List(Command)) {
   case emulator.state {
     AwaitingROM -> tuple(emulator, [])
 
@@ -473,16 +473,16 @@ pub fn step(emulator: Emulator) -> tuple(Emulator, List(Event)) {
       let new_emulator = Emulator(..new_emulator, pc: new_emulator.pc + 2)
       let old_sound_timer = registers.get_sound_timer(emulator.registers)
       let new_sound_timer = registers.get_sound_timer(new_emulator.registers)
-      let events = case tuple(old_sound_timer, new_sound_timer) {
+      let commands = case tuple(old_sound_timer, new_sound_timer) {
         tuple(0, x) if x != 0 -> [SoundOn]
         _ -> []
       }
-      tuple(new_emulator, events)
+      tuple(new_emulator, commands)
     }
   }
 }
 
-pub fn handle_timers(emulator: Emulator) -> tuple(Emulator, List(Event)) {
+pub fn handle_timers(emulator: Emulator) -> tuple(Emulator, List(Command)) {
   let new_screen = screen.decay(emulator.screen)
   let new_registers =
     emulator.registers
@@ -491,14 +491,14 @@ pub fn handle_timers(emulator: Emulator) -> tuple(Emulator, List(Event)) {
 
   let old_sound_timer = registers.get_sound_timer(emulator.registers)
   let new_sound_timer = registers.get_sound_timer(new_registers)
-  let events = case tuple(old_sound_timer, new_sound_timer) {
+  let commands = case tuple(old_sound_timer, new_sound_timer) {
     tuple(x, 0) if x != 0 -> [SoundOff]
     _ -> []
   }
 
   tuple(
     Emulator(..emulator, registers: new_registers, screen: new_screen),
-    events,
+    commands,
   )
 }
 

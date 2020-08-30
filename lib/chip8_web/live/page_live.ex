@@ -57,12 +57,12 @@ defmodule Chip8Web.PageLive do
 
   @impl true
   def handle_event("step", _value, socket) do
-    {emulator, events} = Emulator.step(socket.assigns.emulator)
+    {emulator, commands} = Emulator.step(socket.assigns.emulator)
 
     socket =
       socket
       |> assign(:emulator, emulator)
-      |> handle_events(events)
+      |> handle_commands(commands)
 
     {:noreply, socket}
   end
@@ -128,25 +128,25 @@ defmodule Chip8Web.PageLive do
     timers = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_timer)
     cycles = trunc((now - socket.assigns.last_cycle) / @milliseconds_per_cycle)
 
-    {emulator, events} =
-      Enum.reduce(1..timers, {socket.assigns.emulator, []}, fn _, {acc_emulator, acc_events} ->
-        {emulator, events} = Emulator.handle_timers(acc_emulator)
+    {emulator, commands} =
+      Enum.reduce(1..timers, {socket.assigns.emulator, []}, fn _, {acc_emulator, acc_commands} ->
+        {emulator, commands} = Emulator.handle_timers(acc_emulator)
 
-        {emulator, acc_events ++ events}
+        {emulator, acc_commands ++ commands}
       end)
 
-    {emulator, events} =
-      Enum.reduce(1..cycles, {emulator, events}, fn _, {acc_emulator, acc_events} ->
-        {emulator, events} = Emulator.step(acc_emulator)
+    {emulator, commands} =
+      Enum.reduce(1..cycles, {emulator, commands}, fn _, {acc_emulator, acc_commands} ->
+        {emulator, commands} = Emulator.step(acc_emulator)
 
-        {emulator, acc_events ++ events}
+        {emulator, acc_commands ++ commands}
       end)
 
     socket =
       socket
       |> assign(:emulator, emulator)
       |> assign(:last_cycle, now)
-      |> handle_events(events)
+      |> handle_commands(commands)
 
     {:noreply, socket}
   end
@@ -157,9 +157,9 @@ defmodule Chip8Web.PageLive do
     end
   end
 
-  defp handle_events(socket, events) do
-    Enum.reduce(events, socket, fn event, socket ->
-      case event do
+  defp handle_commands(socket, commands) do
+    Enum.reduce(commands, socket, fn command, socket ->
+      case command do
         :sound_on -> push_event(socket, "enable_soundcard", %{})
         :sound_off -> push_event(socket, "disable_soundcard", %{})
       end

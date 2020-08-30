@@ -45,7 +45,7 @@ pub fn init() -> Emulator {
     state: AwaitingROM,
     registers: registers.new(),
     keyboard: keyboard.new(),
-    pc: 512,
+    pc: 0x200,
     stack: stack.new(),
     memory: memory.put(memory.new(4096), 0, font),
     screen: screen.new(64, 32),

@@ -55,9 +55,9 @@ pub type Instruction {
 
 pub fn decode_instruction(instruction: BitString) -> Instruction {
   case instruction {
-    <<0:4, 0:4, 14:4, 0:4>> -> ClearScreen
+    <<0:4, 0:4, 0xE:4, 0:4>> -> ClearScreen
 
-    <<0:4, 0:4, 14:4, 14:4>> -> ReturnFromSubroutine
+    <<0:4, 0:4, 0xE:4, 0xE:4>> -> ReturnFromSubroutine
 
     <<0:4, nnn:12>> -> ExecuteSystemCall(nnn)
 
@@ -130,7 +130,7 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
         registers.to_data_register(y),
       )
 
-    <<8:4, x:4, y:4, 14:4>> ->
+    <<8:4, x:4, y:4, 0xE:4>> ->
       SetRegisterShiftLeft(
         registers.to_data_register(x),
         registers.to_data_register(y),
@@ -142,48 +142,49 @@ pub fn decode_instruction(instruction: BitString) -> Instruction {
         registers.to_data_register(y),
       )
 
-    <<10:4, nnn:12>> -> SetAddressRegisterToConstant(nnn)
+    <<0xA:4, nnn:12>> -> SetAddressRegisterToConstant(nnn)
 
-    <<11:4, nnn:12>> -> JumpRelative(nnn)
+    <<0xB:4, nnn:12>> -> JumpRelative(nnn)
 
-    <<12:4, x:4, nn:8>> -> SetRegisterRandom(registers.to_data_register(x), nn)
+    <<0xC:4, x:4, nn:8>> -> SetRegisterRandom(registers.to_data_register(x), nn)
 
-    <<13:4, x:4, y:4, n:4>> ->
+    <<0xD:4, x:4, y:4, n:4>> ->
       DisplaySprite(
         registers.to_data_register(x),
         registers.to_data_register(y),
         n,
       )
 
-    <<14:4, x:4, 9:4, 14:4>> ->
+    <<0xE:4, x:4, 9:4, 14:4>> ->
       SkipNextIfKeyPressed(registers.to_data_register(x))
 
-    <<14:4, x:4, 10:4, 1:4>> ->
+    <<0xE:4, x:4, 0xA:4, 1:4>> ->
       SkipNextIfKeyNotPressed(registers.to_data_register(x))
 
-    <<15:4, x:4, 0:4, 7:4>> ->
+    <<0xF:4, x:4, 0:4, 7:4>> ->
       SetRegisterToDelayTimer(registers.to_data_register(x))
 
-    <<15:4, x:4, 0:4, 10:4>> -> WaitForKeyPress(registers.to_data_register(x))
+    <<0xF:4, x:4, 0:4, 0xA:4>> -> WaitForKeyPress(registers.to_data_register(x))
 
-    <<15:4, x:4, 1:4, 5:4>> ->
+    <<0xF:4, x:4, 1:4, 5:4>> ->
       SetDelayTimerToRegisterValue(registers.to_data_register(x))
 
-    <<15:4, x:4, 1:4, 8:4>> ->
+    <<0xF:4, x:4, 1:4, 8:4>> ->
       SetSoundTimerToRegisterValue(registers.to_data_register(x))
 
-    <<15:4, x:4, 1:4, 14:4>> ->
+    <<0xF:4, x:4, 1:4, 0xE:4>> ->
       AddToAddressRegister(registers.to_data_register(x))
 
-    <<15:4, x:4, 2:4, 9:4>> ->
+    <<0xF:4, x:4, 2:4, 9:4>> ->
       SetAddressRegisterToSpriteLocation(registers.to_data_register(x))
 
-    <<15:4, x:4, 3:4, 3:4>> -> StoreBcdOfRegister(registers.to_data_register(x))
+    <<0xF:4, x:4, 3:4, 3:4>> ->
+      StoreBcdOfRegister(registers.to_data_register(x))
 
-    <<15:4, x:4, 5:4, 5:4>> ->
+    <<0xF:4, x:4, 5:4, 5:4>> ->
       StoreRegistersAtAddressRegister(registers.to_data_register(x))
 
-    <<15:4, x:4, 6:4, 5:4>> ->
+    <<0xF:4, x:4, 6:4, 5:4>> ->
       ReadRegistersFromAddressRegister(registers.to_data_register(x))
 
     unknown -> Unknown(unknown)
